@@ -71,12 +71,14 @@ nav {
 }
 
 .logo {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #a78bfa;
+    display: flex;
+    align-items: center;
     text-decoration: none;
-    letter-spacing: -0.02em;
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
 }
 
 .nav-links {

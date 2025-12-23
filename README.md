@@ -38,6 +38,7 @@ zknox-website/
 │   └── team-simon.html     # Simon Masson profile
 │
 └── Assets/
+    ├── zknox-logo.png      # Navigation logo (top left)
     ├── hero-image.png      # Homepage hero image
     ├── photo-nicolas.png   # Team photo
     ├── photo-renaud.png    # Team photo
