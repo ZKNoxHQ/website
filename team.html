@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team | ZKNOX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">ZKNOX</a>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                
+                <div class="nav-dropdown">
+                    <a href="technologies.html" class="nav-link">Technologies</a>
+                    <div class="dropdown-menu">
+                        <a href="tech-pqc.html" class="dropdown-item">Post-Quantum Cryptography</a>
+                        <a href="tech-zk.html" class="dropdown-item">Zero Knowledge</a>
+                        <a href="tech-ecc.html" class="dropdown-item">Elliptic Curves</a>
+                        <a href="tech-hw.html" class="dropdown-item">Hardware Wallets</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="products.html" class="nav-link">Products</a>
+                    <div class="dropdown-menu">
+                        <a href="products.html#libraries" class="dropdown-item">Cryptographic Libraries</a>
+                        <a href="products.html#hardware" class="dropdown-item">Hardware Integration</a>
+                        <a href="products.html#contracts" class="dropdown-item">Smart Contracts</a>
+                        <a href="products.html#zk" class="dropdown-item">ZK Circuits</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="research.html" class="nav-link">Research</a>
+                    <div class="dropdown-menu">
+                        <a href="blog.html" class="dropdown-item">Blog</a>
+                        <a href="papers.html" class="dropdown-item">Papers</a>
+                        <a href="eips.html" class="dropdown-item">EIPs</a>
+                        <a href="talks.html" class="dropdown-item">Talks</a>
+                        <a href="hackathons.html" class="dropdown-item">Hackathons</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="skills.html" class="nav-link">Skills</a>
+                    <div class="dropdown-menu">
+                        <a href="skills.html#design" class="dropdown-item">Design</a>
+                        <a href="skills.html#hardware" class="dropdown-item">Hardware Integration</a>
+                        <a href="skills.html#implementation" class="dropdown-item">Implementation</a>
+                        <a href="skills.html#audits" class="dropdown-item">Audits</a>
+                    </div>
+                </div>
+                
+                <a href="team.html" class="nav-link active">Team</a>
+                <a href="https://x.com/zknoxHQ" class="nav-link nav-icon" target="_blank" title="X/Twitter">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <a href="https://github.com/ZKNoxHQ" class="github-btn" target="_blank">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                GitHub
+            </a>
+
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Team</span>
+            </div>
+            <h1>The Team</h1>
+            <p class="lead">
+                Three experts with 50+ years of combined experience in hardware security, 
+                cryptography, and blockchain technology.
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="content-section" style="background: var(--bg-secondary);">
+            <div class="container" style="max-width: 1140px;">
+                <div class="team-grid">
+                    
+                    <a href="team-nicolas.html" class="team-card">
+                        <div class="team-avatar">
+                            <img src="photo-nicolas.png" alt="Nicolas Bacca">
+                        </div>
+                        <h3>Nicolas Bacca</h3>
+                        <div class="team-role">Co-founder</div>
+                        <p class="team-bio">
+                            Co-founder and ex-CTO of the unicorn Ledger, with 25+ years of experience 
+                            in building and breaking secure solutions. Realizations include giving birth 
+                            to Nano, Ledger's best seller.
+                        </p>
+                        <span class="team-link">Learn more →</span>
+                    </a>
+
+                    <a href="team-renaud.html" class="team-card">
+                        <div class="team-avatar">
+                            <img src="photo-renaud.png" alt="Renaud Dubois">
+                        </div>
+                        <h3>Renaud Dubois</h3>
+                        <div class="team-role">Co-founder</div>
+                        <p class="team-bio">
+                            Cryptologist with 20 years of experience (Thales Defense, Ledger). 
+                            Realizations include several publications and patents, and delivering 
+                            the fastest generic ECC implementations, including passkeys integrated 
+                            in Coinbase Smart Wallet.
+                        </p>
+                        <span class="team-link">Learn more →</span>
+                    </a>
+
+                    <a href="team-simon.html" class="team-card">
+                        <div class="team-avatar">
+                            <img src="photo-simon.png" alt="Simon Masson">
+                        </div>
+                        <h3>Simon Masson</h3>
+                        <div class="team-role">Cryptographer</div>
+                        <p class="team-bio">
+                            Cryptologist with 8 years of experience (Thales, Anoma). 
+                            Realizations include several publications including Bandersnatch, 
+                            a fast embedded curve for ECDSA verification circuit.
+                        </p>
+                        <span class="team-link">Learn more →</span>
+                    </a>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="container">
+                <h2>Join the Journey</h2>
+                <p>
+                    We're building the future of hardware security and cryptography. 
+                    Follow our progress and reach out if you'd like to collaborate.
+                </p>
+                <div class="cta-buttons">
+                    <a href="https://x.com/zknoxHQ" class="btn btn-primary" target="_blank">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                        Follow @zknoxHQ
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-copy">Copyright © 2025 <a href="index.html">ZKNOX</a> All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

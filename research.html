@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research | ZKNOX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">ZKNOX</a>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                
+                <div class="nav-dropdown">
+                    <a href="technologies.html" class="nav-link">Technologies</a>
+                    <div class="dropdown-menu">
+                        <a href="tech-pqc.html" class="dropdown-item">Post-Quantum Cryptography</a>
+                        <a href="tech-zk.html" class="dropdown-item">Zero Knowledge</a>
+                        <a href="tech-ecc.html" class="dropdown-item">Elliptic Curves</a>
+                        <a href="tech-hw.html" class="dropdown-item">Hardware Wallets</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="products.html" class="nav-link">Products</a>
+                    <div class="dropdown-menu">
+                        <a href="products.html#libraries" class="dropdown-item">Cryptographic Libraries</a>
+                        <a href="products.html#hardware" class="dropdown-item">Hardware Integration</a>
+                        <a href="products.html#contracts" class="dropdown-item">Smart Contracts</a>
+                        <a href="products.html#zk" class="dropdown-item">ZK Circuits</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="research.html" class="nav-link active">Research</a>
+                    <div class="dropdown-menu">
+                        <a href="blog.html" class="dropdown-item">Blog</a>
+                        <a href="papers.html" class="dropdown-item">Papers</a>
+                        <a href="eips.html" class="dropdown-item">EIPs</a>
+                        <a href="talks.html" class="dropdown-item">Talks</a>
+                        <a href="hackathons.html" class="dropdown-item">Hackathons</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="skills.html" class="nav-link">Skills</a>
+                    <div class="dropdown-menu">
+                        <a href="skills.html#design" class="dropdown-item">Design</a>
+                        <a href="skills.html#hardware" class="dropdown-item">Hardware Integration</a>
+                        <a href="skills.html#implementation" class="dropdown-item">Implementation</a>
+                        <a href="skills.html#audits" class="dropdown-item">Audits</a>
+                    </div>
+                </div>
+                
+                <a href="team.html" class="nav-link">Team</a>
+                <a href="https://x.com/zknoxHQ" class="nav-link nav-icon" target="_blank" title="X/Twitter">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <a href="https://github.com/ZKNoxHQ" class="github-btn" target="_blank">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                GitHub
+            </a>
+
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Research</span>
+            </div>
+            <h1>Research</h1>
+            <p class="lead">
+                Academic publications, patents, and technical insights on cryptography, 
+                hardware security, and blockchain protocols.
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="content-section" style="background: var(--bg-secondary);">
+            <div class="container" style="max-width: 1140px;">
+                <div class="cards-grid">
+                    
+                    <a href="blog.html" class="card" style="text-decoration: none;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Blog</h3>
+                        <p>Technical deep-dives, tutorials, and updates on our latest work in cryptography and security.</p>
+                        <span class="card-link">Read articles →</span>
+                    </a>
+
+                    <a href="papers.html" class="card" style="text-decoration: none;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Papers</h3>
+                        <p>Academic publications, patents, and peer-reviewed research in cryptography and security.</p>
+                        <span class="card-link">View publications →</span>
+                    </a>
+
+                    <a href="eips.html" class="card" style="text-decoration: none;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                                    <polyline points="2 17 12 22 22 17"/>
+                                    <polyline points="2 12 12 17 22 12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>EIPs</h3>
+                        <p>Ethereum Improvement Proposals for post-quantum cryptography integration.</p>
+                        <span class="card-link">View EIPs →</span>
+                    </a>
+
+                    <a href="talks.html" class="card" style="text-decoration: none;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Talks</h3>
+                        <p>Conference presentations and meetup talks on cryptography and blockchain security.</p>
+                        <span class="card-link">View talks →</span>
+                    </a>
+
+                    <a href="hackathons.html" class="card" style="text-decoration: none;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                    <path d="M2 17l10 5 10-5"/>
+                                    <path d="M2 12l10 5 10-5"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Hackathons</h3>
+                        <p>Innovative cryptographic solutions built at blockchain hackathons worldwide.</p>
+                        <span class="card-link">View projects →</span>
+                    </a>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Security Research</h2>
+                <p>
+                    We actively contribute to ecosystem security through responsible vulnerability 
+                    disclosure. Our team has identified and reported critical vulnerabilities in 
+                    blockchain protocols and cryptographic implementations.
+                </p>
+                <p>
+                    Recent work includes discovering a significant security issue in the RAILGUN 
+                    privacy protocol, where phantom balances could be created through malicious 
+                    ciphertext—demonstrating our commitment to improving security across the ecosystem.
+                </p>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="container">
+                <h2>Read Our Blog</h2>
+                <p>
+                    Follow our technical blog for in-depth articles on cryptography, 
+                    hardware security, and blockchain development.
+                </p>
+                <div class="cta-buttons">
+                    <a href="https://zknox.eth.limo/" class="btn btn-primary" target="_blank">
+                        Visit Blog →
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="footer-logo">ZKNOX</span>
+                    <p>Hardware Security & Cryptography</p>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/ZKNoxHQ" target="_blank">GitHub</a>
+                    <a href="https://x.com/zknoxHQ" target="_blank">X/Twitter</a>
+                    <a href="https://zknox.eth.limo/" target="_blank">Blog</a>
+                </div>
+                <p class="footer-copy">© 2025 ZKNOX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
