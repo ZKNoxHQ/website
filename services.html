@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services | ZKNOX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <img src="zknox-logo.png" alt="ZKNOX">
+            </a>
+            
+                        <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                
+                <div class="nav-dropdown">
+                    <a href="technologies.html" class="nav-link">Technologies</a>
+                    <div class="dropdown-menu">
+                        <a href="tech-ecc.html" class="dropdown-item">Elliptic Curves</a>
+                        <a href="tech-hw.html" class="dropdown-item">Hardware Wallets</a>
+                        <a href="tech-mpc.html" class="dropdown-item">MPC</a>
+                        <a href="tech-pqc.html" class="dropdown-item">Post-Quantum Cryptography</a>
+                        <a href="tech-zk.html" class="dropdown-item">Zero Knowledge</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="products.html" class="nav-link">Products</a>
+                    <div class="dropdown-menu">
+                        <a href="products.html#libraries" class="dropdown-item">Cryptographic Libraries</a>
+                        <a href="products.html#hardware" class="dropdown-item">Hardware Integration</a>
+                        <a href="products.html#contracts" class="dropdown-item">Smart Contracts</a>
+                        <a href="products.html#zk" class="dropdown-item">ZK Circuits</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="research.html" class="nav-link">Research</a>
+                    <div class="dropdown-menu">
+                        <a href="blog.html" class="dropdown-item">Blog</a>
+                        <a href="eips.html" class="dropdown-item">EIPs</a>
+                        <a href="hackathons.html" class="dropdown-item">Hackathons</a>
+                        <a href="papers.html" class="dropdown-item">Papers</a>
+                        <a href="talks.html" class="dropdown-item">Talks</a>
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a href="services.html" class="nav-link">Services</a>
+                    <div class="dropdown-menu">
+                        <a href="services.html#audits" class="dropdown-item">Audits</a>
+                        <a href="services.html#design" class="dropdown-item">Design</a>
+                        <a href="services.html#hardware" class="dropdown-item">Hardware Integration</a>
+                        <a href="services.html#implementation" class="dropdown-item">Implementation</a>
+                    </div>
+                </div>
+                
+                <a href="team.html" class="nav-link">Team</a>
+                <a href="https://x.com/zknoxHQ" class="nav-link nav-icon" target="_blank" title="X/Twitter">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <a href="https://github.com/ZKNoxHQ" class="github-btn" target="_blank">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                GitHub
+            </a>
+
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Services</span>
+            </div>
+            <h1>Services</h1>
+            <p class="lead">
+                Deep technical expertise across the full cryptographic and security stack, 
+                from theoretical design to production deployment.
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="content-section" style="background: var(--bg-secondary);">
+            <div class="container" style="max-width: 1140px;">
+                <div class="cards-grid">
+                    
+                    <div class="skill-card">
+                        <div class="skill-number">01</div>
+                        <div class="skill-content">
+                            <h3>Design</h3>
+                            <p>
+                                Cryptographic protocol design and security analysis. We design secure 
+                                systems from first principles—whether it's post-quantum signature schemes, 
+                                threshold cryptography (FROST, MPC), or zero-knowledge proof systems.
+                            </p>
+                            <p>
+                                Our approach combines rigorous mathematical foundations with practical 
+                                security considerations, ensuring designs that are both provably secure 
+                                and implementable in real-world constraints.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-number">02</div>
+                        <div class="skill-content">
+                            <h3>Hardware Integration</h3>
+                            <p>
+                                Embedded systems programming for hardware security modules, secure 
+                                enclaves, and cryptocurrency hardware wallets. We have deep experience 
+                                with Ledger, Keystone, and custom hardware platforms.
+                            </p>
+                            <p>
+                                Memory-optimized implementations for resource-constrained environments, 
+                                side-channel resistant code, and secure boot processes. From TEEs to 
+                                HSMs, we secure hardware at every level.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-number">03</div>
+                        <div class="skill-content">
+                            <h3>Implementation</h3>
+                            <p>
+                                Production-grade cryptographic implementations in Rust, C, Cairo, 
+                                and Solidity. We build libraries that are fast, secure, and 
+                                well-tested—used by leading blockchain projects.
+                            </p>
+                            <p>
+                                Gas-optimized smart contracts, ZK circuits, and embedded firmware. 
+                                Our implementations undergo rigorous testing, fuzzing, and formal 
+                                verification where applicable.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-number">04</div>
+                        <div class="skill-content">
+                            <h3>Audits</h3>
+                            <p>
+                                Comprehensive security evaluation of cryptographic implementations, 
+                                smart contracts, and blockchain protocols. We identify vulnerabilities 
+                                before attackers do.
+                            </p>
+                            <p>
+                                Responsible disclosure, detailed remediation guidance, and ongoing 
+                                security consultation. Our team has discovered critical vulnerabilities 
+                                in major protocols and contributed to ecosystem security.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Technologies</h2>
+                <p>Our expertise spans a wide range of cryptographic and blockchain technologies:</p>
+                
+                <div class="tag-list" style="margin-top: 1.5rem; gap: 0.75rem;">
+                    <span class="tag">Elliptic Curves (secp256k1, P-256, BN254)</span>
+                    <span class="tag">Post-Quantum (ML-DSA, Falcon)</span>
+                    <span class="tag">Threshold Cryptography (FROST, MPC)</span>
+                    <span class="tag">Zero-Knowledge Proofs (SNARKs, STARKs)</span>
+                    <span class="tag">Hash Functions & MACs</span>
+                    <span class="tag">Key Derivation & Management</span>
+                </div>
+
+                <h2>Platforms</h2>
+                <p>We build for diverse environments and platforms:</p>
+                
+                <div class="tag-list" style="margin-top: 1.5rem; gap: 0.75rem;">
+                    <span class="tag">Ethereum & EVM chains</span>
+                    <span class="tag">Starknet & Cairo</span>
+                    <span class="tag">Hardware Wallets (Ledger, Keystone)</span>
+                    <span class="tag">Secure Enclaves (SGX, TrustZone)</span>
+                    <span class="tag">HSMs & TEEs</span>
+                    <span class="tag">Embedded Systems</span>
+                </div>
+
+                <h2>Languages</h2>
+                <p>Production-ready implementations across multiple languages:</p>
+                
+                <div class="tag-list" style="margin-top: 1.5rem; gap: 0.75rem;">
+                    <span class="tag">Rust</span>
+                    <span class="tag">C / C++</span>
+                    <span class="tag">Solidity</span>
+                    <span class="tag">Cairo</span>
+                    <span class="tag">TypeScript</span>
+                    <span class="tag">Python</span>
+                    <span class="tag">Assembly (ARM, x86)</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="container">
+                <h2>Work With Us</h2>
+                <p>
+                    Need cryptographic expertise for your project? From design to audit, 
+                    we can help secure your systems.
+                </p>
+                <div class="cta-buttons">
+                    <a href="https://x.com/zknoxHQ" class="btn btn-primary" target="_blank">
+                        Get in Touch →
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-copy">Copyright © 2025 <a href="index.html">ZKNOX</a> All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
