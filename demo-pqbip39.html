@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZKNOX PQBIP39 - Post-Quantum Key Derivation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       ZKNOX Website - Shared Styles
+       ============================================ */
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #f0f2f5;
+      --accent-primary: #0066cc;
+      --accent-secondary: #7c3aed;
+      --accent-gradient: linear-gradient(135deg, #0066cc 0%, #7c3aed 100%);
+      --text-primary: #1a1a2e;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --nav-bg: #0a0a0f;
+      --nav-text: #a78bfa;
+      --nav-text-hover: #c4b5fd;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ============================================
+       Navigation (black banner, violet text)
+       ============================================ */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: var(--nav-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .logo img {
+      height: 48px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: var(--nav-text);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--nav-text-hover);
+    }
+
+    .nav-link.active {
+      color: var(--nav-text-hover);
+    }
+
+    /* Dropdown Navigation */
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .nav-dropdown > .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .nav-dropdown > .nav-link::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid currentColor;
+      transition: transform 0.2s ease;
+    }
+
+    .nav-dropdown:hover > .nav-link::after {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 200px;
+      background: #1a1a25;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 0.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.2s ease;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      z-index: 1001;
+    }
+
+    .nav-dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(5px);
+    }
+
+    .dropdown-item {
+      display: block;
+      padding: 0.65rem 1rem;
+      color: #9ca3af;
+      text-decoration: none;
+      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+      color: var(--nav-text);
+      background: rgba(167, 139, 250, 0.1);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--accent-primary);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 0.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .mobile-menu-btn span {
+      width: 22px;
+      height: 2px;
+      background: #ffffff;
+      transition: all 0.3s ease;
+    }
+
+    .nav-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+    }
+
+    .nav-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .github-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      margin-left: 0.5rem;
+    }
+
+    .github-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--nav-text);
+    }
+
+    .github-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ============================================
+       Page Header
+       ============================================ */
+    .page-header {
+      padding: 140px 2rem 80px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .page-header .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .page-header h1 {
+      font-size: clamp(2.4rem, 4.8vw, 3rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-header .lead {
+      font-size: 1.32rem;
+      color: var(--text-secondary);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* ============================================
+       Main Content
+       ============================================ */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ============================================
+       Step Cards
+       ============================================ */
+    .step {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .step:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .step.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .step.completed {
+      border-color: var(--success);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      background: var(--accent-gradient);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .step.disabled .step-number {
+      background: var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .step.completed .step-number {
+      background: var(--success);
+    }
+
+    .step-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .step-status {
+      margin-left: auto;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .status-waiting {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+    }
+
+    .status-ready {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .step-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    /* ============================================
+       Buttons
+       ============================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Source Sans 3', sans-serif;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-primary);
+    }
+
+    .btn-secondary {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
+    .btn-eth {
+      background: linear-gradient(135deg, #627eea 0%, #4c54c4 100%);
+      color: white;
+    }
+
+    .btn-eth:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================
+       Forms
+       ============================================ */
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    input, textarea, select {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--text-primary);
+      font-family: 'IBM Plex Mono', monospace;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .input-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ============================================
+       Info Boxes
+       ============================================ */
+    .info-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin: 12px 0;
+    }
+
+    .info-box strong {
+      color: var(--text-primary);
+    }
+
+    .warning-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: var(--error);
+      margin: 12px 0;
+    }
+
+    .flow-box {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      text-align: center;
+      margin: 12px 0;
+      color: var(--text-secondary);
+    }
+
+    .flow-box .arrow {
+      color: var(--accent-secondary);
+      font-weight: 600;
+    }
+
+    /* ============================================
+       Results
+       ============================================ */
+    .result {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+    }
+
+    .result.success {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--text-primary);
+    }
+
+    .result.success strong {
+      color: var(--success);
+    }
+
+    .result.error {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--error);
+    }
+
+    .result.info {
+      background: rgba(0, 102, 204, 0.08);
+      border: 1px solid rgba(0, 102, 204, 0.2);
+      color: var(--accent-primary);
+    }
+
+    .result.warning {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    /* ============================================
+       Tables
+       ============================================ */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.9rem;
+    }
+
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td:first-child {
+      color: var(--text-muted);
+      width: 140px;
+      font-size: 0.85rem;
+    }
+
+    /* ============================================
+       Code & Keys
+       ============================================ */
+    code {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: var(--accent-secondary);
+    }
+
+    pre {
+      background: var(--bg-tertiary);
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+      font-size: 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .address {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--accent-primary);
+      font-size: 0.85rem;
+    }
+
+    /* ============================================
+       Mnemonic Display
+       ============================================ */
+    .mnemonic-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 16px 0;
+      padding: 16px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .mnemonic-word {
+      background: var(--bg-primary);
+      padding: 8px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      border: 1px solid var(--border-color);
+    }
+
+    .mnemonic-word .index {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    .mnemonic-word .word {
+      color: var(--accent-secondary);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 16px 0;
+    }
+
+    /* ============================================
+       Footer (black banner, violet text)
+       ============================================ */
+    footer {
+      background: var(--nav-bg);
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid rgba(167, 139, 250, 0.2);
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .footer-copy {
+      color: var(--nav-text);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .footer-copy a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-copy a:hover {
+      color: var(--nav-text-hover);
+    }
+
+    /* ============================================
+       Responsive
+       ============================================ */
+    @media (max-width: 768px) {
+      .mnemonic-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav-links.active {
+        display: flex;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: var(--nav-bg);
+        flex-direction: column;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-link {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
+
+      .github-btn {
+        margin-top: 0.5rem;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .mnemonic-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <img src="zknox-logo.png" alt="ZKNOX">
+      </a>
+      
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        
+        <div class="nav-dropdown">
+          <a href="technologies.html" class="nav-link">Technologies</a>
+          <div class="dropdown-menu">
+            <a href="tech-ecc.html" class="dropdown-item">Elliptic Curves</a>
+            <a href="tech-hw.html" class="dropdown-item">Hardware Wallets</a>
+            <a href="tech-mpc.html" class="dropdown-item">MPC</a>
+            <a href="tech-pqc.html" class="dropdown-item">Post-Quantum Cryptography</a>
+            <a href="tech-zk.html" class="dropdown-item">Zero Knowledge</a>
+          </div>
+        </div>
+        
+        <div class="nav-dropdown">
+          <a href="products.html" class="nav-link">Products</a>
+          <div class="dropdown-menu">
+            <a href="products.html#libraries" class="dropdown-item">Cryptographic Libraries</a>
+            <a href="products.html#hardware" class="dropdown-item">Hardware Integration</a>
+            <a href="products.html#contracts" class="dropdown-item">Smart Contracts</a>
+            <a href="products.html#zk" class="dropdown-item">ZK Circuits</a>
+          </div>
+        </div>
+        
+        <div class="nav-dropdown">
+          <a href="demo.html" class="nav-link active">Demo</a>
+          <div class="dropdown-menu">
+            <a href="demo-pqbip39.html" class="dropdown-item">PQBIP39</a>
+            <a href="demo-zk-hardware.html" class="dropdown-item">ZK-Hardware</a>
+          </div>
+        </div>
+        
+        <div class="nav-dropdown">
+          <a href="research.html" class="nav-link">Research</a>
+          <div class="dropdown-menu">
+            <a href="blog.html" class="dropdown-item">Blog</a>
+            <a href="eips.html" class="dropdown-item">EIPs</a>
+            <a href="hackathons.html" class="dropdown-item">Hackathons</a>
+            <a href="papers.html" class="dropdown-item">Papers</a>
+            <a href="talks.html" class="dropdown-item">Talks</a>
+          </div>
+        </div>
+        
+        <div class="nav-dropdown">
+          <a href="services.html" class="nav-link">Services</a>
+          <div class="dropdown-menu">
+            <a href="services.html#audits" class="dropdown-item">Audits</a>
+            <a href="services.html#design" class="dropdown-item">Design</a>
+            <a href="services.html#hardware" class="dropdown-item">Hardware Integration</a>
+            <a href="services.html#implementation" class="dropdown-item">Implementation</a>
+          </div>
+        </div>
+        
+        <a href="team.html" class="nav-link">Team</a>
+        <a href="https://x.com/zknoxHQ" class="nav-link nav-icon" target="_blank" title="X/Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+      </div>
+
+      <a href="https://github.com/ZKNoxHQ" class="github-btn" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+        GitHub
+      </a>
+
+      <button class="mobile-menu-btn" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="container" style="max-width: 900px;">
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span>/</span>
+        <a href="demo.html">Demo</a>
+        <span>/</span>
+        <span>PQBIP39</span>
+      </div>
+      <h1>Post-Quantum Key Derivation</h1>
+      <p class="lead">Derive ML-DSA-44 and secp256k1 keys from a hardware-bound passkey using the PQBIP39 standard. Recoverable via 24-word mnemonic.</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Step 1: Passkey -->
+    <div class="step" id="step1">
+      <div class="step-header">
+        <div class="step-number">1</div>
+        <div class="step-title">Connect Passkey with PRF</div>
+        <div class="step-status status-waiting" id="step1Status">Ready</div>
+      </div>
+      <p class="step-desc">Connect an existing passkey or create a new one. The PRF extension provides hardware-bound entropy for key derivation.</p>
+
+      <div class="input-group" id="passkeyOptions" style="display: none;">
+        <label>Authenticator Type (for new passkey)</label>
+        <select id="authenticatorType">
+          <option value="">Auto (browser chooses)</option>
+          <option value="cross-platform">Hardware Key (YubiKey) - Device-bound</option>
+          <option value="platform">Platform (Touch ID, Face ID) - May sync</option>
+        </select>
+        <div class="input-hint">Hardware keys never sync. Platform authenticators may sync to iCloud/Google.</div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnConnectPasskey" onclick="connectPasskey()">Connect Passkey</button>
+        <button class="btn btn-secondary" id="btnCreateNew" onclick="createCredential()" style="display: none;">Create New Instead</button>
+      </div>
+
+      <div id="credentialInfo"></div>
+    </div>
+
+    <!-- Step 2: Ethereum Wallet -->
+    <div class="step disabled" id="step2">
+      <div class="step-header">
+        <div class="step-number">2</div>
+        <div class="step-title">Connect Ethereum Wallet</div>
+        <div class="step-status status-waiting" id="step2Status">Waiting</div>
+      </div>
+      <p class="step-desc">Connect your wallet to bind keys to your Ethereum address, or derive a secp256k1 keypair from the mnemonic.</p>
+
+      <div class="btn-group">
+        <button class="btn btn-eth" id="btnConnect" onclick="connectWallet()" disabled>Connect Wallet</button>
+        <button class="btn btn-secondary" id="btnDeriveK1" onclick="deriveK1FromMnemonic()" disabled>Derive K1 from PRF (BIP39)</button>
+      </div>
+
+      <div class="info-box">
+        <strong>Two options:</strong><br>
+        • <strong>Connect Wallet</strong> — Use existing ETH address, sign to prove ownership<br>
+        • <strong>Derive K1 from PRF</strong> — Generate secp256k1 keypair from mnemonic (path: m/44'/60'/0'/0/0)
+      </div>
+
+      <div id="walletInfo"></div>
+    </div>
+
+    <!-- Step 3: Derive ML-DSA -->
+    <div class="step disabled" id="step3">
+      <div class="step-header">
+        <div class="step-number">3</div>
+        <div class="step-title">Derive ML-DSA-44 Key (PQBIP39)</div>
+        <div class="step-status status-waiting" id="step3Status">Waiting</div>
+      </div>
+      <p class="step-desc">Derive a post-quantum ML-DSA-44 keypair from the BIP39 mnemonic using path <code>m/44'/9003'/0'/0/0</code>.</p>
+
+      <div class="flow-box">
+        PRF (32 bytes) <span class="arrow">→</span> BIP39 Mnemonic <span class="arrow">→</span> PBKDF2 <span class="arrow">→</span> BIP32 <span class="arrow">→</span> ML-DSA-44
+      </div>
+
+      <button class="btn btn-primary" id="btnDeriveMLDSA" onclick="deriveMLDSAKey()" disabled>Derive ML-DSA-44 Key</button>
+
+      <div id="keyInfo"></div>
+    </div>
+
+    <!-- Step 4: Sign & Verify -->
+    <div class="step disabled" id="step4">
+      <div class="step-header">
+        <div class="step-number">4</div>
+        <div class="step-title">Sign &amp; Verify</div>
+        <div class="step-status status-waiting" id="step4Status">Waiting</div>
+      </div>
+      <p class="step-desc">Sign a message with your ML-DSA-44 private key and verify the signature.</p>
+
+      <div class="input-group">
+        <label>Message to Sign</label>
+        <input type="text" id="messageInput" value="Hello, Post-Quantum World!" placeholder="Enter message...">
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnSign" onclick="signMessage()" disabled>Sign with ML-DSA-44</button>
+        <button class="btn btn-secondary" id="btnVerify" onclick="verifySignature()" disabled>Verify Signature</button>
+      </div>
+
+      <div id="signatureInfo"></div>
+    </div>
+
+    <!-- Step 5: Deploy ERC-4337 -->
+    <div class="step disabled" id="step5">
+      <div class="step-header">
+        <div class="step-number">5</div>
+        <div class="step-title">Deploy ERC-4337 Account Contract</div>
+        <div class="step-status status-waiting" id="step5Status">Waiting</div>
+      </div>
+      <p class="step-desc">Deploy the ZKNOX_ERC4337_account contract with your hybrid (ECDSA + ML-DSA) keys.</p>
+
+      <div class="input-group">
+        <label>Network</label>
+        <select id="networkSelect">
+          <option value="11155111">Sepolia Testnet</option>
+          <option value="17000">Holesky Testnet</option>
+          <option value="1">Ethereum Mainnet</option>
+          <option value="10">Optimism</option>
+          <option value="8453">Base</option>
+        </select>
+      </div>
+
+      <div class="info-box">
+        <strong>Contract Addresses</strong>
+      </div>
+
+      <div class="input-group">
+        <label>EntryPoint (ERC-4337 v0.7)</label>
+        <input type="text" id="entryPointInput" value="0x0000000071727De22E5E9d8BAf0edAc6f37da032">
+      </div>
+
+      <div class="input-group">
+        <label>Pre-Quantum Verifier (ECDSA)</label>
+        <input type="text" id="preQuantumLogicInput" placeholder="0x... (ECDSA verifier contract)">
+      </div>
+
+      <div class="input-group">
+        <label>Post-Quantum Verifier (ML-DSA)</label>
+        <input type="text" id="postQuantumLogicInput" placeholder="0x... (ML-DSA verifier contract)">
+      </div>
+
+      <div class="input-group">
+        <label>Hybrid Verifier</label>
+        <input type="text" id="hybridVerifierInput" placeholder="0x... (ZKNOX_HybridVerifier contract)">
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="info-box">
+        <strong>Public Keys</strong>
+      </div>
+
+      <div class="input-group">
+        <label>Pre-Quantum PubKey (ECDSA)</label>
+        <input type="text" id="preQuantumPubKeyInput" placeholder="0x... (leave empty to derive from wallet)">
+        <div class="input-hint">Leave empty to derive from connected wallet</div>
+      </div>
+
+      <div class="input-group">
+        <label>Post-Quantum PubKey (ML-DSA-44)</label>
+        <input type="text" id="postQuantumPubKeyInput" readonly style="background: var(--bg-tertiary);">
+        <div class="input-hint">Auto-filled from Step 3 (1312 bytes)</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="input-group">
+        <label>Contract Bytecode</label>
+        <textarea id="bytecodeInput" placeholder="Paste compiled ZKNOX_ERC4337_account bytecode here (0x...)" style="height: 80px;"></textarea>
+        <div class="input-hint">Compile with: <code>forge build</code> then get bytecode from artifacts</div>
+      </div>
+
+      <button class="btn btn-primary" id="btnDeploy" onclick="deployContract()" disabled>Deploy Contract</button>
+
+      <div id="deployInfo"></div>
+    </div>
+
+    <!-- Summary -->
+    <div class="step" id="stepSummary" style="display: none;">
+      <div class="step-header">
+        <div class="step-number">✓</div>
+        <div class="step-title">Key Binding Summary</div>
+      </div>
+      <div id="bindingSummary"></div>
+    </div>
+
+    <!-- Recovery -->
+    <div class="step" id="stepRecover">
+      <div class="step-header">
+        <div class="step-number">↻</div>
+        <div class="step-title">Recover from Mnemonic</div>
+      </div>
+      <p class="step-desc">If you have a 24-word mnemonic from a previous derivation, recover your keys without the passkey.</p>
+
+      <div class="input-group">
+        <label>BIP39 Mnemonic (24 words)</label>
+        <textarea id="mnemonicInput" placeholder="Enter your 24-word mnemonic phrase..."></textarea>
+      </div>
+
+      <div class="input-group">
+        <label>Derivation Path</label>
+        <input type="text" id="derivationPathInput" value="m/44'/9003'/0'/0/0" style="width: 220px;">
+        <div class="input-hint">ML-DSA-44 = 9003, ML-DSA-65 = 9004, secp256k1 = 60</div>
+      </div>
+
+      <button class="btn btn-secondary" onclick="recoverFromMnemonic()">Recover Keys</button>
+
+      <div id="recoverInfo"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p class="footer-copy">Copyright © 2025 <a href="https://zknox.com">ZKNOX</a> All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    // Import libraries
+    import { ml_dsa44 } from 'https://esm.sh/@noble/post-quantum@0.5.2/ml-dsa.js';
+    import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from 'https://esm.sh/@scure/bip39@1.4.0';
+    import { wordlist } from 'https://esm.sh/@scure/bip39@1.4.0/wordlists/english';
+    import { HDKey } from 'https://esm.sh/@scure/bip32@1.5.0';
+    import * as secp256k1 from 'https://esm.sh/@noble/secp256k1@2.1.0';
+    import { keccak_256 } from 'https://esm.sh/@noble/hashes@1.4.0/sha3';
+
+    // ==================== GLOBAL STATE ====================
+    let credential = null;
+    let prfOutput = null;
+    let mnemonic = null;
+    let mldsaKeys = null;
+    let k1Keys = null;
+    let ethAddress = null;
+    let ethSignature = null;
+    let lastSignature = null;
+
+    const MLDSA44_PATH = "m/44'/9003'/0'/0/0";
+    const SECP256K1_PATH = "m/44'/60'/0'/0/0";
+
+    // Expose functions
+    window.connectPasskey = connectPasskey;
+    window.createCredential = createCredential;
+    window.connectWallet = connectWallet;
+    window.deriveK1FromMnemonic = deriveK1FromMnemonic;
+    window.deriveMLDSAKey = deriveMLDSAKey;
+    window.signMessage = signMessage;
+    window.verifySignature = verifySignature;
+    window.recoverFromMnemonic = recoverFromMnemonic;
+    window.deployContract = deployContract;
+
+    // ==================== STEP 1: CONNECT PASSKEY ====================
+    async function connectPasskey() {
+      if (!window.PublicKeyCredential) {
+        showResult('credentialInfo', 'error', 'WebAuthn not supported in this browser.');
+        return;
+      }
+
+      try {
+        showResult('credentialInfo', 'info', 'Looking for existing passkeys...');
+
+        const prfSalt = new TextEncoder().encode("zknox-pqbip39-entropy");
+
+        const assertion = await navigator.credentials.get({
+          publicKey: {
+            challenge: crypto.getRandomValues(new Uint8Array(32)),
+            rpId: location.hostname,
+            allowCredentials: [],
+            userVerification: "preferred",
+            extensions: { prf: { eval: { first: prfSalt } } },
+            timeout: 120000
+          }
+        });
+
+        if (!assertion) {
+          showNoPasskeyFound();
+          return;
+        }
+
+        const extResults = assertion.getClientExtensionResults();
+        const prfResult = extResults.prf?.results?.first;
+
+        credential = {
+          rawId: assertion.rawId,
+          id: assertion.id,
+          authenticatorAttachment: assertion.authenticatorAttachment
+        };
+
+        const authType = assertion.authenticatorAttachment === 'cross-platform' ? 'Hardware key (device-bound)' :
+                        assertion.authenticatorAttachment === 'platform' ? 'Platform (may sync)' : 'Unknown';
+
+        if (prfResult) {
+          prfOutput = new Uint8Array(prfResult);
+          mnemonic = entropyToMnemonic(prfOutput, wordlist);
+
+          showResult('credentialInfo', 'success', `
+            <strong>✓ Passkey Connected with PRF</strong>
+            <table>
+              <tr><td>Credential ID</td><td><code>${toHex(assertion.rawId).slice(0, 40)}...</code></td></tr>
+              <tr><td>Authenticator</td><td>${authType}</td></tr>
+              <tr><td>PRF Output</td><td><code>${toHex(prfOutput).slice(0, 32)}...</code></td></tr>
+            </table>
+            <div class="divider"></div>
+            <strong>BIP39 Mnemonic (24 words)</strong>
+            ${formatMnemonic(mnemonic)}
+            <div class="warning-box">⚠ Write this down! This is your recovery phrase.</div>
+          `);
+
+          updateStep('step1', 'completed', '✓ Connected');
+          enableStep('step2');
+          enableStep('step3');
+          document.getElementById('btnConnect').disabled = false;
+          document.getElementById('btnDeriveK1').disabled = false;
+          document.getElementById('btnDeriveMLDSA').disabled = false;
+
+        } else {
+          showResult('credentialInfo', 'warning', `
+            <strong>⚠ Passkey Found but No PRF Support</strong>
+            <table>
+              <tr><td>Credential ID</td><td><code>${toHex(assertion.rawId).slice(0, 40)}...</code></td></tr>
+              <tr><td>Authenticator</td><td>${authType}</td></tr>
+            </table>
+            <p>This passkey doesn't support PRF. Try a YubiKey 5 or Android with Chrome.</p>
+          `);
+          showCreateNewOption();
+        }
+
+      } catch (e) {
+        if (e.name === 'NotAllowedError') {
+          showNoPasskeyFound();
+        } else {
+          showResult('credentialInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+          showCreateNewOption();
+        }
+      }
+    }
+
+    function showNoPasskeyFound() {
+      showResult('credentialInfo', 'info', `
+        <strong>No existing passkey found</strong>
+        <p>Create a new passkey to get started.</p>
+      `);
+      showCreateNewOption();
+    }
+
+    function showCreateNewOption() {
+      document.getElementById('passkeyOptions').style.display = 'block';
+      document.getElementById('btnCreateNew').style.display = 'inline-flex';
+      document.getElementById('btnConnectPasskey').textContent = 'Try Again';
+    }
+
+    async function createCredential() {
+      if (!window.PublicKeyCredential) {
+        showResult('credentialInfo', 'error', 'WebAuthn not supported.');
+        return;
+      }
+
+      const userId = crypto.getRandomValues(new Uint8Array(16));
+      const authenticatorType = document.getElementById('authenticatorType').value;
+
+      const authenticatorSelection = {
+        residentKey: "preferred",
+        userVerification: "preferred"
+      };
+
+      if (authenticatorType) {
+        authenticatorSelection.authenticatorAttachment = authenticatorType;
+      }
+
+      try {
+        showResult('credentialInfo', 'info', 'Creating passkey... Please complete the prompt.');
+
+        credential = await navigator.credentials.create({
+          publicKey: {
+            challenge: crypto.getRandomValues(new Uint8Array(32)),
+            rp: { name: "ZKNOX PQBIP39", id: location.hostname },
+            user: { id: userId, name: "pqbip39-user", displayName: "ZKNOX PQ Key" },
+            pubKeyCredParams: [
+              { type: "public-key", alg: -7 },
+              { type: "public-key", alg: -257 }
+            ],
+            authenticatorSelection: authenticatorSelection,
+            extensions: { prf: {} },
+            timeout: 120000
+          }
+        });
+
+        const extResults = credential.getClientExtensionResults();
+        const prfEnabled = extResults.prf?.enabled;
+
+        const authType = credential.authenticatorAttachment === 'cross-platform' ? 'Hardware key (device-bound)' :
+                        credential.authenticatorAttachment === 'platform' ? 'Platform (may sync)' : 'Unknown';
+
+        if (prfEnabled) {
+          showResult('credentialInfo', 'info', 'Passkey created. Requesting PRF...');
+
+          const prfSalt = new TextEncoder().encode("zknox-pqbip39-entropy");
+          const assertion = await navigator.credentials.get({
+            publicKey: {
+              challenge: crypto.getRandomValues(new Uint8Array(32)),
+              rpId: location.hostname,
+              allowCredentials: [{ type: "public-key", id: credential.rawId }],
+              extensions: { prf: { eval: { first: prfSalt } } },
+              userVerification: "preferred",
+              timeout: 120000
+            }
+          });
+
+          const prfResult = assertion.getClientExtensionResults().prf?.results?.first;
+          if (prfResult) {
+            prfOutput = new Uint8Array(prfResult);
+            mnemonic = entropyToMnemonic(prfOutput, wordlist);
+
+            showResult('credentialInfo', 'success', `
+              <strong>✓ Passkey Created with PRF</strong>
+              <table>
+                <tr><td>Credential ID</td><td><code>${toHex(credential.rawId).slice(0, 40)}...</code></td></tr>
+                <tr><td>Authenticator</td><td>${authType}</td></tr>
+              </table>
+              <div class="divider"></div>
+              <strong>BIP39 Mnemonic (24 words)</strong>
+              ${formatMnemonic(mnemonic)}
+              <div class="warning-box">⚠ Write this down! This is your recovery phrase.</div>
+            `);
+
+            updateStep('step1', 'completed', '✓ Created');
+            enableStep('step2');
+            enableStep('step3');
+            document.getElementById('btnConnect').disabled = false;
+            document.getElementById('btnDeriveK1').disabled = false;
+            document.getElementById('btnDeriveMLDSA').disabled = false;
+            document.getElementById('btnConnectPasskey').style.display = 'none';
+            document.getElementById('btnCreateNew').style.display = 'none';
+            document.getElementById('passkeyOptions').style.display = 'none';
+          }
+
+        } else {
+          showResult('credentialInfo', 'warning', `
+            <strong>⚠ Passkey created but PRF NOT supported</strong>
+            <p>Try using a YubiKey 5 or Android with Chrome.</p>
+          `);
+        }
+
+      } catch (e) {
+        showResult('credentialInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+      }
+    }
+
+    // ==================== STEP 2: ETHEREUM WALLET ====================
+    async function connectWallet() {
+      if (!window.ethereum) {
+        showResult('walletInfo', 'error', 'No Ethereum wallet detected. Install MetaMask or Rabby.');
+        return;
+      }
+
+      try {
+        showResult('walletInfo', 'info', 'Connecting wallet...');
+
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        ethAddress = accounts[0];
+
+        showResult('walletInfo', 'info', 'Please sign the message to prove ownership...');
+
+        const message = "ZKNOX PQBIP39: Bind PQ key to ETH address";
+        ethSignature = await window.ethereum.request({
+          method: 'personal_sign',
+          params: [message, ethAddress]
+        });
+
+        showResult('walletInfo', 'success', `
+          <strong>✓ Wallet Connected & Signed</strong>
+          <table>
+            <tr><td>Address</td><td><span class="address">${ethAddress}</span></td></tr>
+            <tr><td>Signature</td><td><code>${ethSignature.slice(0, 30)}...</code></td></tr>
+          </table>
+        `);
+
+        updateStep('step2', 'completed', '✓ Connected');
+
+      } catch (e) {
+        showResult('walletInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+      }
+    }
+
+    async function deriveK1FromMnemonic() {
+      if (!mnemonic) {
+        showResult('walletInfo', 'error', 'No mnemonic available. Connect passkey first.');
+        return;
+      }
+
+      try {
+        showResult('walletInfo', 'info', 'Deriving secp256k1 keypair from mnemonic...');
+
+        const masterSeed = await mnemonicToSeed(mnemonic, "");
+        const hdkey = HDKey.fromMasterSeed(masterSeed);
+        const derived = hdkey.derive(SECP256K1_PATH);
+
+        const privateKey = derived.privateKey;
+        const publicKey = secp256k1.getPublicKey(privateKey, false);
+
+        const pubKeyNoPrefix = publicKey.slice(1);
+        const addressHash = keccak_256(pubKeyNoPrefix);
+        const derivedAddress = '0x' + toHex(addressHash.slice(-20));
+
+        k1Keys = { privateKey, publicKey, address: derivedAddress };
+        ethAddress = derivedAddress;
+
+        showResult('walletInfo', 'success', `
+          <strong>✓ secp256k1 Keypair Derived</strong>
+          <table>
+            <tr><td>Path</td><td><code>${SECP256K1_PATH}</code></td></tr>
+            <tr><td>ETH Address</td><td><span class="address">${derivedAddress}</span></td></tr>
+            <tr><td>Public Key</td><td><code>${toHex(publicKey).slice(0, 40)}...</code></td></tr>
+          </table>
+          <div class="warning-box">⚠ This address is derived from your passkey mnemonic. Import the private key to use in a wallet.</div>
+        `);
+
+        updateStep('step2', 'completed', '✓ K1 Derived');
+
+      } catch (e) {
+        showResult('walletInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+      }
+    }
+
+    // ==================== STEP 3: DERIVE ML-DSA ====================
+    async function deriveMLDSAKey() {
+      if (!mnemonic) {
+        showResult('keyInfo', 'error', 'No mnemonic available. Connect passkey first.');
+        return;
+      }
+
+      try {
+        showResult('keyInfo', 'info', 'Deriving ML-DSA-44 keypair...');
+
+        const masterSeed = await mnemonicToSeed(mnemonic, "");
+        const hdkey = HDKey.fromMasterSeed(masterSeed);
+        const derived = hdkey.derive(MLDSA44_PATH);
+        const mldsaSeed = derived.privateKey;
+
+        mldsaKeys = ml_dsa44.keygen(mldsaSeed);
+
+        showResult('keyInfo', 'success', `
+          <strong>✓ ML-DSA-44 Keypair Derived</strong>
+          <table>
+            <tr><td>Path</td><td><code>${MLDSA44_PATH}</code></td></tr>
+            <tr><td>Derived Seed</td><td><code>${toHex(mldsaSeed).slice(0, 32)}...</code></td></tr>
+            <tr><td>Public Key Size</td><td>${mldsaKeys.publicKey.length} bytes</td></tr>
+            <tr><td>Secret Key Size</td><td>${mldsaKeys.secretKey.length} bytes</td></tr>
+          </table>
+          <div class="divider"></div>
+          <strong>Public Key (hex)</strong>
+          <pre>${toHex(mldsaKeys.publicKey)}</pre>
+        `);
+
+        updateStep('step3', 'completed', '✓ Derived');
+        enableStep('step4');
+        document.getElementById('btnSign').disabled = false;
+        document.getElementById('btnVerify').disabled = false;
+
+        // Enable ERC-4337 deployment step
+        enableStep('step5');
+        document.getElementById('btnDeploy').disabled = false;
+        document.getElementById('postQuantumPubKeyInput').value = '0x' + toHex(mldsaKeys.publicKey);
+
+        showBindingSummary();
+
+      } catch (e) {
+        showResult('keyInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+      }
+    }
+
+    // ==================== STEP 4: SIGN/VERIFY ====================
+    async function signMessage() {
+      if (!mldsaKeys) {
+        showResult('signatureInfo', 'error', 'Derive ML-DSA key first.');
+        return;
+      }
+
+      const message = document.getElementById('messageInput').value;
+      const messageBytes = new TextEncoder().encode(message);
+
+      try {
+        const startTime = performance.now();
+        lastSignature = ml_dsa44.sign(messageBytes, mldsaKeys.secretKey);
+        const endTime = performance.now();
+
+        showResult('signatureInfo', 'success', `
+          <strong>✓ Message Signed</strong>
+          <table>
+            <tr><td>Message</td><td><code>${escapeHtml(message)}</code></td></tr>
+            <tr><td>Signature Size</td><td>${lastSignature.length} bytes</td></tr>
+            <tr><td>Sign Time</td><td>${(endTime - startTime).toFixed(2)} ms</td></tr>
+          </table>
+          <div class="divider"></div>
+          <strong>Signature (hex)</strong>
+          <pre>${toHex(lastSignature)}</pre>
+        `);
+
+        updateStep('step4', 'completed', '✓ Signed');
+
+      } catch (e) {
+        showResult('signatureInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+      }
+    }
+
+    async function verifySignature() {
+      if (!mldsaKeys || !lastSignature) {
+        showResult('signatureInfo', 'error', 'Sign a message first.');
+        return;
+      }
+
+      const message = document.getElementById('messageInput').value;
+      const messageBytes = new TextEncoder().encode(message);
+
+      try {
+        const startTime = performance.now();
+        const isValid = ml_dsa44.verify(lastSignature, messageBytes, mldsaKeys.publicKey);
+        const endTime = performance.now();
+
+        if (isValid) {
+          showResult('signatureInfo', 'success', `
+            <strong>✓ Signature Valid</strong>
+            <table>
+              <tr><td>Message</td><td><code>${escapeHtml(message)}</code></td></tr>
+              <tr><td>Verify Time</td><td>${(endTime - startTime).toFixed(2)} ms</td></tr>
+            </table>
+          `);
+        } else {
+          showResult('signatureInfo', 'error', '<strong>✗ Signature Invalid</strong>');
+        }
+
+      } catch (e) {
+        showResult('signatureInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+      }
+    }
+
+    // ==================== STEP 5: DEPLOY ERC-4337 ====================
+    async function deployContract() {
+      if (!mldsaKeys) {
+        showResult('deployInfo', 'error', 'Derive ML-DSA key first.');
+        return;
+      }
+
+      if (!window.ethereum) {
+        showResult('deployInfo', 'error', 'No Ethereum wallet detected. Install MetaMask or Rabby.');
+        return;
+      }
+
+      const bytecode = document.getElementById('bytecodeInput').value.trim();
+      if (!bytecode || !bytecode.startsWith('0x')) {
+        showResult('deployInfo', 'error', 'Please paste the contract bytecode (starting with 0x)');
+        return;
+      }
+
+      const entryPoint = document.getElementById('entryPointInput').value.trim();
+      const preQuantumLogic = document.getElementById('preQuantumLogicInput').value.trim();
+      const postQuantumLogic = document.getElementById('postQuantumLogicInput').value.trim();
+      const hybridVerifier = document.getElementById('hybridVerifierInput').value.trim();
+
+      if (!preQuantumLogic || !postQuantumLogic || !hybridVerifier) {
+        showResult('deployInfo', 'error', 'Please fill in all verifier contract addresses');
+        return;
+      }
+
+      try {
+        showResult('deployInfo', 'info', 'Preparing deployment...');
+
+        const networkId = document.getElementById('networkSelect').value;
+
+        // Get current chain and switch if needed
+        const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+        if (parseInt(currentChainId, 16) !== parseInt(networkId)) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: '0x' + parseInt(networkId).toString(16) }]
+            });
+          } catch (switchError) {
+            showResult('deployInfo', 'error', `Please switch to the correct network (Chain ID: ${networkId})`);
+            return;
+          }
+        }
+
+        // Get accounts
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const deployerAddress = accounts[0];
+
+        // Public keys
+        let preQuantumPubKey = document.getElementById('preQuantumPubKeyInput').value.trim();
+        if (!preQuantumPubKey) {
+          // Derive from wallet if not provided
+          preQuantumPubKey = deployerAddress;
+        }
+        const postQuantumPubKey = document.getElementById('postQuantumPubKeyInput').value.trim();
+
+        // Encode constructor arguments
+        const encodedArgs = encodeConstructorArgs6(
+          entryPoint,
+          preQuantumPubKey,
+          postQuantumPubKey,
+          preQuantumLogic,
+          postQuantumLogic,
+          hybridVerifier
+        );
+
+        // Combine bytecode + encoded args
+        const deployData = bytecode + encodedArgs.slice(2);
+
+        const preQPubKeySize = (preQuantumPubKey.replace('0x', '').length / 2);
+        const postQPubKeySize = (postQuantumPubKey.replace('0x', '').length / 2);
+
+        showResult('deployInfo', 'info', `
+          <strong>Deployment Details:</strong>
+          <table>
+            <tr><td>Network</td><td>Chain ID: ${networkId}</td></tr>
+            <tr><td>EntryPoint</td><td><code>${entryPoint.slice(0, 20)}...</code></td></tr>
+            <tr><td>Pre-Q Verifier</td><td><code>${preQuantumLogic.slice(0, 20)}...</code></td></tr>
+            <tr><td>Post-Q Verifier</td><td><code>${postQuantumLogic.slice(0, 20)}...</code></td></tr>
+            <tr><td>Hybrid Verifier</td><td><code>${hybridVerifier.slice(0, 20)}...</code></td></tr>
+            <tr><td>Pre-Q PubKey Size</td><td>${preQPubKeySize} bytes</td></tr>
+            <tr><td>Post-Q PubKey Size</td><td>${postQPubKeySize} bytes</td></tr>
+            <tr><td>Deploy Data Size</td><td>${deployData.length / 2} bytes</td></tr>
+          </table>
+          <p>Estimating gas...</p>
+        `);
+
+        // Estimate gas
+        let gasEstimate;
+        try {
+          gasEstimate = await window.ethereum.request({
+            method: 'eth_estimateGas',
+            params: [{
+              from: deployerAddress,
+              data: deployData
+            }]
+          });
+        } catch (gasError) {
+          showResult('deployInfo', 'error', `
+            <strong>Gas Estimation Failed</strong><br><br>
+            ${gasError.message}<br><br>
+            This usually means the constructor will revert. Check:<br>
+            • Verifier contract addresses are correct<br>
+            • Public key formats are valid<br>
+            • Bytecode is correct
+          `);
+          return;
+        }
+
+        showResult('deployInfo', 'info', `
+          <strong>Gas estimated: ${parseInt(gasEstimate, 16)}</strong><br>
+          Requesting transaction signature...
+        `);
+
+        // Send deployment transaction
+        const txHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            from: deployerAddress,
+            data: deployData,
+            gas: gasEstimate
+          }]
+        });
+
+        showResult('deployInfo', 'info', `
+          <strong>Transaction Submitted!</strong>
+          <table>
+            <tr><td>TX Hash</td><td><code>${txHash}</code></td></tr>
+          </table>
+          <p>Waiting for confirmation...</p>
+        `);
+
+        // Wait for receipt
+        let receipt = null;
+        let attempts = 0;
+        while (!receipt && attempts < 60) {
+          await new Promise(r => setTimeout(r, 3000));
+          receipt = await window.ethereum.request({
+            method: 'eth_getTransactionReceipt',
+            params: [txHash]
+          });
+          attempts++;
+        }
+
+        if (!receipt) {
+          showResult('deployInfo', 'warning', `
+            <strong>Transaction pending...</strong><br>
+            TX Hash: <code>${txHash}</code><br>
+            Check the block explorer for status.
+          `);
+          return;
+        }
+
+        if (receipt.status === '0x1') {
+          const contractAddress = receipt.contractAddress;
+          const explorerUrl = getExplorerUrl(networkId, contractAddress);
+
+          showResult('deployInfo', 'success', `
+            <strong>✓ Contract Deployed Successfully!</strong>
+            <table>
+              <tr><td>Contract Address</td><td><span class="address">${contractAddress}</span></td></tr>
+              <tr><td>TX Hash</td><td><code>${txHash}</code></td></tr>
+              <tr><td>Block</td><td>${parseInt(receipt.blockNumber, 16)}</td></tr>
+              <tr><td>Gas Used</td><td>${parseInt(receipt.gasUsed, 16)}</td></tr>
+            </table>
+            <br>
+            <a href="${explorerUrl}" target="_blank" style="color: var(--accent-primary);">View on Block Explorer →</a>
+            <div class="divider"></div>
+            <strong>Your Hybrid PQ Account</strong>
+            <pre>{
+  "accountAddress": "${contractAddress}",
+  "owner": "${deployerAddress}",
+  "entryPoint": "${entryPoint}",
+  "preQuantumPubKey": "${preQuantumPubKey.slice(0, 40)}...",
+  "postQuantumPubKey": "${postQuantumPubKey.slice(0, 40)}...",
+  "hybridVerifier": "${hybridVerifier}"
+}</pre>
+          `);
+
+          updateStep('step5', 'completed', '✓ Deployed');
+        } else {
+          showResult('deployInfo', 'error', `
+            <strong>✗ Deployment Failed</strong><br>
+            Transaction reverted. Check the transaction on the block explorer.
+          `);
+        }
+
+      } catch (e) {
+        showResult('deployInfo', 'error', `<strong>Deploy Error:</strong> ${e.message}`);
+      }
+    }
+
+    // Encode constructor arguments for ZKNOX_ERC4337_account
+    // constructor(IEntryPoint, bytes, bytes, address, address, address)
+    function encodeConstructorArgs6(entryPoint, preQPubKey, postQPubKey, preQLogic, postQLogic, hybridVerifier) {
+      // Clean addresses (pad to 32 bytes)
+      const entryPointEnc = entryPoint.toLowerCase().replace('0x', '').padStart(64, '0');
+      const preQLogicEnc = preQLogic.toLowerCase().replace('0x', '').padStart(64, '0');
+      const postQLogicEnc = postQLogic.toLowerCase().replace('0x', '').padStart(64, '0');
+      const hybridVerifierEnc = hybridVerifier.toLowerCase().replace('0x', '').padStart(64, '0');
+
+      // Clean pubkey data
+      const preQData = preQPubKey.replace('0x', '');
+      const postQData = postQPubKey.replace('0x', '');
+
+      // Calculate offsets for dynamic data
+      const offset1 = (192).toString(16).padStart(64, '0');
+      const preQPaddedLen = Math.ceil(preQData.length / 64) * 64;
+      const offset2Start = 192 + 32 + preQPaddedLen / 2;
+      const offset2 = offset2Start.toString(16).padStart(64, '0');
+
+      // Encode bytes data
+      const preQLen = (preQData.length / 2).toString(16).padStart(64, '0');
+      const preQPadded = preQData.padEnd(preQPaddedLen, '0');
+
+      const postQLen = (postQData.length / 2).toString(16).padStart(64, '0');
+      const postQPaddedLen = Math.ceil(postQData.length / 64) * 64;
+      const postQPadded = postQData.padEnd(postQPaddedLen, '0');
+
+      return '0x' +
+        entryPointEnc +
+        offset1 +
+        offset2 +
+        preQLogicEnc +
+        postQLogicEnc +
+        hybridVerifierEnc +
+        preQLen +
+        preQPadded +
+        postQLen +
+        postQPadded;
+    }
+
+    function getExplorerUrl(chainId, address) {
+      const explorers = {
+        '1': 'https://etherscan.io/address/',
+        '11155111': 'https://sepolia.etherscan.io/address/',
+        '17000': 'https://holesky.etherscan.io/address/',
+        '10': 'https://optimistic.etherscan.io/address/',
+        '8453': 'https://basescan.org/address/'
+      };
+      return (explorers[chainId] || 'https://etherscan.io/address/') + address;
+    }
+
+    // ==================== SUMMARY ====================
+    function showBindingSummary() {
+      document.getElementById('stepSummary').style.display = 'block';
+
+      let summaryHtml = `<table>`;
+      if (ethAddress) {
+        summaryHtml += `<tr><td>ETH Address</td><td><span class="address">${ethAddress}</span></td></tr>`;
+      }
+      if (k1Keys) {
+        summaryHtml += `<tr><td>secp256k1 (derived)</td><td><code>${toHex(k1Keys.publicKey).slice(0, 40)}...</code></td></tr>`;
+      }
+      if (mldsaKeys) {
+        summaryHtml += `<tr><td>ML-DSA-44 PubKey</td><td><code>${toHex(mldsaKeys.publicKey).slice(0, 40)}...</code></td></tr>`;
+      }
+      summaryHtml += `<tr><td>Passkey ID</td><td><code>${toHex(credential.rawId).slice(0, 40)}...</code></td></tr>`;
+      summaryHtml += `</table>`;
+
+      summaryHtml += `
+        <div class="divider"></div>
+        <strong>Recovery Options</strong>
+        <table>
+          <tr><td>Passkey available</td><td>Re-derive from PRF → same mnemonic → same keys</td></tr>
+          <tr><td>Passkey lost</td><td>Import mnemonic → same keys</td></tr>
+        </table>
+      `;
+
+      document.getElementById('bindingSummary').innerHTML = summaryHtml;
+    }
+
+    // ==================== RECOVER ====================
+    async function recoverFromMnemonic() {
+      const mnemonicInput = document.getElementById('mnemonicInput').value.trim().toLowerCase();
+      const derivationPath = document.getElementById('derivationPathInput').value.trim();
+
+      const normalizedMnemonic = mnemonicInput.split(/\s+/).join(' ');
+      const words = normalizedMnemonic.split(' ');
+
+      if (words.length !== 24 && words.length !== 12) {
+        showResult('recoverInfo', 'error', `Invalid mnemonic length: ${words.length} words (expected 12 or 24)`);
+        return;
+      }
+
+      try {
+        if (!validateMnemonic(normalizedMnemonic, wordlist)) {
+          showResult('recoverInfo', 'error', 'Invalid mnemonic: checksum failed or unknown words');
+          return;
+        }
+
+        showResult('recoverInfo', 'info', 'Deriving keys from mnemonic...');
+
+        const masterSeed = await mnemonicToSeed(normalizedMnemonic, "");
+        const hdkey = HDKey.fromMasterSeed(masterSeed);
+        const derived = hdkey.derive(derivationPath);
+
+        if (derivationPath.includes("60'")) {
+          const privateKey = derived.privateKey;
+          const publicKey = secp256k1.getPublicKey(privateKey, false);
+          const pubKeyNoPrefix = publicKey.slice(1);
+          const addressHash = keccak_256(pubKeyNoPrefix);
+          const address = '0x' + toHex(addressHash.slice(-20));
+
+          showResult('recoverInfo', 'success', `
+            <strong>✓ secp256k1 Key Recovered</strong>
+            <table>
+              <tr><td>Path</td><td><code>${derivationPath}</code></td></tr>
+              <tr><td>ETH Address</td><td><span class="address">${address}</span></td></tr>
+              <tr><td>Public Key</td><td><code>${toHex(publicKey).slice(0, 40)}...</code></td></tr>
+            </table>
+          `);
+
+        } else {
+          const mldsaSeed = derived.privateKey;
+          const recoveredKeys = ml_dsa44.keygen(mldsaSeed);
+
+          mldsaKeys = recoveredKeys;
+          mnemonic = normalizedMnemonic;
+
+          showResult('recoverInfo', 'success', `
+            <strong>✓ ML-DSA-44 Key Recovered</strong>
+            <table>
+              <tr><td>Path</td><td><code>${derivationPath}</code></td></tr>
+              <tr><td>Public Key Size</td><td>${recoveredKeys.publicKey.length} bytes</td></tr>
+            </table>
+            <div class="divider"></div>
+            <strong>Public Key (hex)</strong>
+            <pre>${toHex(recoveredKeys.publicKey)}</pre>
+          `);
+
+          enableStep('step4');
+          document.getElementById('btnSign').disabled = false;
+          document.getElementById('btnVerify').disabled = false;
+        }
+
+      } catch (e) {
+        showResult('recoverInfo', 'error', `<strong>Error:</strong> ${e.message}`);
+      }
+    }
+
+    // ==================== UTILITIES ====================
+    function showResult(elementId, type, html) {
+      document.getElementById(elementId).innerHTML = `<div class="result ${type}">${html}</div>`;
+    }
+
+    function updateStep(stepId, state, statusText) {
+      const step = document.getElementById(stepId);
+      const status = document.getElementById(stepId + 'Status');
+
+      step.classList.remove('completed', 'disabled');
+      if (state === 'completed') step.classList.add('completed');
+      if (state === 'disabled') step.classList.add('disabled');
+
+      if (status) {
+        status.className = 'step-status ' + (state === 'completed' ? 'status-ready' : 'status-waiting');
+        status.innerHTML = statusText;
+      }
+    }
+
+    function enableStep(stepId) {
+      document.getElementById(stepId).classList.remove('disabled');
+    }
+
+    function formatMnemonic(mnemonic) {
+      const words = mnemonic.split(' ');
+      let html = '<div class="mnemonic-grid">';
+      words.forEach((word, i) => {
+        html += `<div class="mnemonic-word"><span class="index">${i + 1}.</span> <span class="word">${word}</span></div>`;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function toHex(buffer) {
+      return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
