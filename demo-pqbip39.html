@@ -762,10 +762,13 @@
         </div>
         
         <div class="nav-dropdown">
-          <a href="demo.html" class="nav-link active">Demo</a>
+          <a href="tools.html" class="nav-link active">Tools</a>
           <div class="dropdown-menu">
-            <a href="demo-pqbip39.html" class="dropdown-item">PQBIP39</a>
+            <a href="zknox-blue/official-apps.html" class="dropdown-item">ZKNOX Blue</a>
+                        <a href="zknox-orange/sideloader.html" class="dropdown-item">ZKNOX Orange</a>
+                        <a href="demo-pqbip39.html" class="dropdown-item">PQBIP39</a>
             <a href="demo-zk-hardware.html" class="dropdown-item">ZK-Hardware</a>
+                        <a href="faucet.html" class="dropdown-item">Faucet</a>
           </div>
         </div>
         
@@ -819,7 +822,7 @@
       <div class="breadcrumb">
         <a href="index.html">Home</a>
         <span>/</span>
-        <a href="demo.html">Demo</a>
+        <a href="#">Tools</a>
         <span>/</span>
         <span>PQBIP39</span>
       </div>
@@ -928,6 +931,31 @@
         <div class="step-status status-waiting" id="step5Status">Waiting</div>
       </div>
       <p class="step-desc">Deploy the ZKNOX_ERC4337_account contract with your hybrid (ECDSA + ML-DSA) keys.</p>
+
+      <!-- EOA Balance Section -->
+      <div class="info-box" id="balanceSection" style="display: none;">
+        <strong>💰 EOA Balance</strong>
+        <div style="margin-top: 0.5rem;">
+          <span id="eoaAddressDisplay" class="address" style="font-size: 0.9rem;"></span>
+          <div style="margin-top: 0.75rem; display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">Mainnet</span>
+              <div style="font-size: 1.1rem; font-weight: 600;" id="balanceMainnet">Loading...</div>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">Sepolia</span>
+              <div style="font-size: 1.1rem; font-weight: 600;" id="balanceSepolia">Loading...</div>
+            </div>
+          </div>
+          <div style="margin-top: 0.75rem;">
+            <a href="faucet.html" target="_blank" class="btn btn-secondary" id="faucetLink" style="font-size: 0.9rem;">
+              🚰 Get Testnet ETH from Faucet
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider" id="balanceDivider" style="display: none;"></div>
 
       <div class="input-group">
         <label>Network</label>
@@ -1338,6 +1366,9 @@
         `);
 
         updateStep('step2', 'completed', '✓ K1 Derived');
+        
+        // Show balance section and store address for faucet
+        showBalanceSection();
 
       } catch (e) {
         showResult('walletInfo', 'error', `<strong>Error:</strong> ${e.message}`);
@@ -1841,6 +1872,79 @@
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    // ==================== BALANCE FUNCTIONS ====================
+    // RPC endpoints with CORS support
+    const RPC_ENDPOINTS = {
+      '1': 'https://ethereum.publicnode.com',
+      '11155111': 'https://ethereum-sepolia.publicnode.com',
+      '17000': 'https://ethereum-holesky.publicnode.com',
+      '10': 'https://optimism.publicnode.com',
+      '8453': 'https://base.publicnode.com'
+    };
+
+    async function fetchBalance(address, chainId) {
+      const rpc = RPC_ENDPOINTS[chainId] || RPC_ENDPOINTS['11155111'];
+      try {
+        const response = await fetch(rpc, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'eth_getBalance',
+            params: [address, 'latest'],
+            id: 1
+          })
+        });
+        const data = await response.json();
+        if (data.result) {
+          const wei = BigInt(data.result);
+          const eth = Number(wei) / 1e18;
+          return eth.toFixed(6);
+        }
+        return '0.000000';
+      } catch (e) {
+        console.error('Balance fetch error:', e);
+        return 'Error';
+      }
+    }
+
+    async function updateBalance() {
+      if (!k1Keys || !k1Keys.address) return;
+      
+      // Fetch mainnet balance
+      document.getElementById('balanceMainnet').textContent = 'Loading...';
+      fetchBalance(k1Keys.address, '1').then(balance => {
+        document.getElementById('balanceMainnet').textContent = balance + ' ETH';
+      });
+      
+      // Fetch sepolia balance
+      document.getElementById('balanceSepolia').textContent = 'Loading...';
+      fetchBalance(k1Keys.address, '11155111').then(balance => {
+        document.getElementById('balanceSepolia').textContent = balance + ' ETH';
+      });
+      
+      // Store address in localStorage for faucet page
+      try {
+        localStorage.setItem('zknox_k1_address', k1Keys.address);
+      } catch (e) {
+        console.warn('Could not store address in localStorage:', e);
+      }
+    }
+
+    function showBalanceSection() {
+      if (!k1Keys || !k1Keys.address) return;
+      
+      document.getElementById('balanceSection').style.display = 'block';
+      document.getElementById('balanceDivider').style.display = 'block';
+      document.getElementById('eoaAddressDisplay').textContent = k1Keys.address;
+      
+      // Update faucet link with address parameter
+      const faucetLink = document.getElementById('faucetLink');
+      faucetLink.href = 'faucet.html?address=' + encodeURIComponent(k1Keys.address);
+      
+      updateBalance();
     }
 
     function toggleMenu() {
