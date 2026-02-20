@@ -20,7 +20,7 @@ git clone https://github.com/ZKNoxHQ/ZKNOXorange.git zknox-orange
 
 # Clone ZKNOX 7702 Unchained (7702 Delegation)
 git clone https://github.com/ZKNoxHQ/7702_Unchained
-
+cd 7702_Unchained; rm -rf ledger/
 ```
 
 After cloning, the complete site structure will be ready to serve.
