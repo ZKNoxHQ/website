@@ -16,6 +16,11 @@ git clone https://github.com/ZKNoxHQ/ZKNOXblue.git zknox-blue
 
 # Clone ZKNOX Orange (Sideloader)
 git clone https://github.com/ZKNoxHQ/ZKNOXorange.git zknox-orange
+
+
+# Clone ZKNOX 7702 Unchained (7702 Delegation)
+git clone https://github.com/ZKNoxHQ/7702_Unchained
+
 ```
 
 After cloning, the complete site structure will be ready to serve.
