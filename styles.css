@@ -226,13 +226,20 @@ nav {
 @media (max-width: 900px) {
     .nav-links {
         display: none;
-        position: absolute;
+        position: fixed;
         top: 70px;
         left: 0;
         right: 0;
+        max-height: calc(100vh - 70px);
+        max-height: calc(100dvh - 70px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         background: #0a0a0f;
         flex-direction: column;
-        padding: 1rem;
+        align-items: stretch;
+        gap: 0;
+        padding: 0.5rem 0 1.5rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: var(--shadow-md);
     }
@@ -243,7 +250,7 @@ nav {
 
     .nav-link {
         width: 100%;
-        padding: 0.75rem 1rem;
+        padding: 0.75rem 1.25rem;
     }
 
     .dropdown-menu {
@@ -254,7 +261,12 @@ nav {
         background: transparent;
         border: none;
         box-shadow: none;
-        padding-left: 1rem;
+        min-width: 0;
+        padding: 0 0 0.25rem;
+    }
+
+    .dropdown-item {
+        padding: 0.6rem 1.25rem 0.6rem 2.25rem;
     }
 
     .mobile-menu-btn {
