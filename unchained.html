@@ -181,12 +181,16 @@ textarea{height:64px;resize:vertical}
 <script type="module">
 // ═══════════════════════════════════════ CDN IMPORTS ═══════════════════════════════
 // Buffer polyfill — required by @ledgerhq/hw-transport-webhid
-import { Buffer } from "https://esm.sh/buffer@6.0.3";
+import { Buffer } from "https://cdn.jsdelivr.net/npm/buffer@6.0.3/+esm";
 globalThis.Buffer = Buffer;
 
-// Using esm.sh — zero npm, zero build
-import { ethers } from "https://esm.sh/ethers@6.13.4";
-import TransportWebHID from "https://esm.sh/@ledgerhq/hw-transport-webhid@6.29.4";
+// jsDelivr rather than esm.sh — zero npm, zero build. esm.sh builds modules on
+// demand and its cold builds time out (408), which broke this page for anyone
+// hitting an uncached URL; it also emitted an unresolvable semver-range subpath
+// for @ledgerhq/devices/hid-framing. jsDelivr serves prebuilt files and pins
+// every transitive dep to an exact version.
+import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm";
+import TransportWebHID from "https://cdn.jsdelivr.net/npm/@ledgerhq/hw-transport-webhid@6.29.4/+esm";
 
 // Remove loading message, show UI
 document.getElementById("loading-msg").remove();
