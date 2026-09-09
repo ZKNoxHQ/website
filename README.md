@@ -25,6 +25,12 @@ cd 7702_Unchained; rm -rf ledger/
 
 After cloning, the complete site structure will be ready to serve.
 
+Every tool's **page** lives here at the site root (`official-apps.html`,
+`sideloader.html`, `unchained.html`) so it shares `styles.css` and `nav.js`; the
+cloned repos supply only what each page loads — JS bundles, app binaries, images.
+Serve over HTTP (`npx serve .`), not `file://`, or the root-relative `/nav.js`
+and the ES-module imports will fail.
+
 ## Directory Structure
 
 ```
@@ -32,16 +38,19 @@ website/
 │
 ├── index.html              # Homepage
 ├── styles.css              # Global stylesheet
+├── nav.js                  # Shared navigation (all pages)
+├── official-apps.html      # ZKNOX Blue - Official App Installer UI
+├── sideloader.html         # ZKNOX Orange - Sideloader UI
+├── unchained.html          # 7702 Unchained - EIP-7702 delegation UI
 ├── README.md               # This file
 │
-├── zknox-blue/             # ZKNOX Blue - Official App Installer
-│   ├── official-apps.html  # Main application
+├── zknox-blue/             # ZKNOX Blue - engine
 │   ├── dist/               # Bundled JavaScript
 │   ├── src/                # Source modules
 │   └── README.md
 │
-├── zknox-orange/           # ZKNOX Orange - Sideloader
-│   ├── sideloader.html     # Main application
+├── zknox-orange/           # ZKNOX Orange - engine & app catalog
+│   ├── apps/               # Prebuilt Ledger apps (.hex, .map, Makefile)
 │   ├── dist/               # Bundled JavaScript
 │   ├── src/                # Source modules
 │   └── README.md
@@ -86,13 +95,15 @@ website/
 ## Tools
 
 ### ZKNOX Blue
-Official Ledger application installer using ZKNOX's HSM infrastructure.
+Official Ledger application installer using ZKNOX's HSM infrastructure. The page is
+`official-apps.html` at the site root; the `zknox-blue/` clone supplies the JS bundle.
 - Install official Ledger apps
 - Firmware verification
 - WebHID-based (Chrome/Edge)
 
 ### ZKNOX Orange
-Development sideloader for custom Ledger applications.
+Development sideloader for custom Ledger applications. The page is `sideloader.html`
+at the site root; the `zknox-orange/` clone supplies the JS bundle and the app catalog.
 - Push Custom CA
 - Load custom .hex applications
 - SCP v3 protocol implementation
@@ -103,6 +114,9 @@ Development sideloader for custom Ledger applications.
 | Page | Description |
 |------|-------------|
 | `index.html` | Homepage with hero, services overview, and CTAs |
+| `official-apps.html` | ZKNOX Blue installer (reads `zknox-blue/`) |
+| `sideloader.html` | ZKNOX Orange sideloader (reads `zknox-orange/`) |
+| `unchained.html` | 7702 Unchained EIP-7702 delegation tool |
 | `technologies.html` | Overview of core technology areas |
 | `tech-pqc.html` | Post-Quantum Cryptography (ML-DSA, Falcon, PQbeat) |
 | `tech-zk.html` | Zero Knowledge proofs and circuits |

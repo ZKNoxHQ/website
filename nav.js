@@ -5,8 +5,8 @@
  *     <script src="/nav.js" defer></script>
  *
  * All hrefs are root-relative so they resolve identically from the site root
- * (/index.html) and from a subdirectory (/zknox-blue/official-apps.html).
- * This means pages must be served over HTTP, not opened as file://.
+ * and from a subdirectory. This means pages must be served over HTTP, not
+ * opened as file://.
  *
  * This file also injects the mobile nav CSS, so the phone behaviour is defined
  * once here rather than duplicated into each repo's stylesheet.
@@ -37,8 +37,9 @@
         },
         {
             label: 'Tools', href: '/tools.html', items: [
-                { label: 'ZKNOX Blue', href: '/zknox-blue/official-apps.html' },
-                { label: 'ZKNOX Orange', href: '/zknox-orange/sideloader.html' },
+                { label: 'ZKNOX Blue', href: '/official-apps.html' },
+                { label: 'ZKNOX Orange', href: '/sideloader.html' },
+                { label: '7702 Unchained', href: '/unchained.html' },
                 { label: 'PQBIP39', href: '/demo-pqbip39.html' },
                 { label: 'ZK-Hardware', href: '/demo-zk-hardware.html' },
                 { label: 'Faucet', href: '/faucet.html' }
