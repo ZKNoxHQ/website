@@ -39,7 +39,6 @@
             label: 'Tools', href: '/tools.html', items: [
                 { label: 'ZKNOX Blue', href: '/zknox-blue/official-apps.html' },
                 { label: 'ZKNOX Orange', href: '/zknox-orange/sideloader.html' },
-                { label: 'ZKNOX 7702 Delegator', href: '/7702_Unchained/index.html' },
                 { label: 'PQBIP39', href: '/demo-pqbip39.html' },
                 { label: 'ZK-Hardware', href: '/demo-zk-hardware.html' },
                 { label: 'Faucet', href: '/faucet.html' }
