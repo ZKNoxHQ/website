@@ -28,20 +28,21 @@
             ]
         },
         {
-            label: 'Products', href: '/products.html', items: [
-                { label: 'Cryptographic Libraries', href: '/products.html#libraries' },
-                { label: 'Hardware Integration', href: '/products.html#hardware' },
-                { label: 'Smart Contracts', href: '/products.html#contracts' },
-                { label: 'ZK Circuits', href: '/products.html#zk' }
-            ]
+            label: 'Products', href: '/products.html',
+            // items: [
+            //     { label: 'Cryptographic Libraries', href: '/products.html#libraries' },
+            //     { label: 'Hardware Integration', href: '/products.html#hardware' },
+            //     { label: 'Smart Contracts', href: '/products.html#contracts' },
+            //     { label: 'ZK Circuits', href: '/products.html#zk' }
+            // ]
         },
         {
             label: 'Tools', href: '/tools.html', items: [
                 { label: 'ZKNOX Blue', href: '/official-apps.html' },
                 { label: 'ZKNOX Orange', href: '/sideloader.html' },
-                { label: '7702 Unchained', href: '/unchained.html' },
+                // { label: '7702 Unchained', href: '/unchained.html' },
                 { label: 'PQBIP39', href: '/demo-pqbip39.html' },
-                { label: 'ZK-Hardware', href: '/demo-zk-hardware.html' },
+                // { label: 'ZK-Hardware', href: '/demo-zk-hardware.html' },
                 { label: 'Faucet', href: '/faucet.html' }
             ]
         },
@@ -55,12 +56,13 @@
             ]
         },
         {
-            label: 'Services', href: '/services.html', items: [
-                { label: 'Audits', href: '/services.html#audits' },
-                { label: 'Design', href: '/services.html#design' },
-                { label: 'Hardware Integration', href: '/services.html#hardware' },
-                { label: 'Implementation', href: '/services.html#implementation' }
-            ]
+            label: 'Services', href: '/services.html',
+            // items: [
+            // { label: 'Audits', href: '/services.html#audits' },
+            // { label: 'Design', href: '/services.html#design' },
+            // { label: 'Hardware Integration', href: '/services.html#hardware' },
+            // { label: 'Implementation', href: '/services.html#implementation' }
+            // ]
         },
         /* prefix: also mark active on sub-pages, e.g. /team-simon.html */
         { label: 'Team', href: '/team.html', prefix: '/team' }
