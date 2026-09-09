@@ -597,6 +597,81 @@ section h2 {
 }
 
 /* CTA Section */
+/* ============================================
+   Partners
+   ============================================ */
+
+.partners-section {
+    background: var(--bg-primary);
+    text-align: center;
+}
+
+.partners-lead {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+}
+
+.partners-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.partner {
+    flex: 1 1 220px;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    padding: 2rem 1.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.partner:hover {
+    border-color: var(--accent-secondary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* Grayscale until hover, matching the team photo treatment. */
+.partner img {
+    height: 48px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.75;
+    transition: all 0.3s ease;
+}
+
+.partner:hover img {
+    filter: none;
+    opacity: 1;
+}
+
+.partner span {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 600px) {
+    .partner {
+        flex-basis: 100%;
+        max-width: none;
+        padding: 1.5rem;
+    }
+}
+
 .cta-section {
     background: var(--bg-secondary);
     text-align: center;
