@@ -198,14 +198,20 @@
                     <label>Device Type</label>
                     <select id="targetId">
                         <option value="0x33100004">Nano S Plus</option>
-                        <!-- <option value="0x33000004">Nano X</option>
-                        <option value="0x31100004">Nano S (legacy)</option>
+                        <option value="0x33000004">Nano X</option>
                         <option value="0x33200004">Stax</option>
-                        <option value="0x33300004">Flex</option> -->
+                        <option value="0x33300004">Flex</option>
+                        <!-- <option value="0x31100004">Nano S (legacy)</option>  no SCP v2+ -->
                     </select>
                 </div>
 
-                <div id="deviceInfo" style="display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem;">
+                <div id="deviceInfo" style="display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                    <label style="margin: 0; display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                        <input type="radio" name="transportKind" value="usb" checked> USB
+                    </label>
+                    <label style="margin: 0; display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                        <input type="radio" name="transportKind" value="ble"> Bluetooth (Nano X / Stax / Flex)
+                    </label>
                     <span id="connectionStatus" class="status disconnected">Disconnected</span>
                     <button id="disconnectBtn" class="secondary" disabled style="margin: 0; padding: 0.4rem 1rem; font-size: 0.85rem;">Disconnect</button>
                 </div>
@@ -370,6 +376,7 @@
         }
 
         let TransportWebHID, loadApp, deleteApp, listApps, getMemInfo, IntelHexParser;
+        let fetchCatalogApp, replayApduScript, getDeviceInfo, TransportWebBLE;
         let modulesLoaded = false;
         
         try {
@@ -381,6 +388,10 @@
             listApps = mod.listApps;
             getMemInfo = mod.getMemInfo;
             IntelHexParser = mod.IntelHexParser;
+            fetchCatalogApp = mod.fetchCatalogApp;
+            replayApduScript = mod.replayApduScript;
+            getDeviceInfo = mod.getDeviceInfo;
+            TransportWebBLE = mod.TransportWebBLE;
             modulesLoaded = true;
             log('✔ Modules loaded successfully', 'success');
             log('Ready - Fill in app details then click "Connect & Load"', 'info');
@@ -395,7 +406,8 @@
 
         // ---- ZKNOX Apps Catalog ----
         const catalogApps = [
-            { id: 'privacy', name: 'Privacy', icon: '🕶️', desc: 'Privacy tools (multisig, babyjubjub)', dir: 'zknox-orange/apps/privacy', appFlags: 0, frontUrl: 'https://railgun-hw.netlify.app/'  },
+            { id: 'privacy', name: 'Privacy', icon: '🕶️', desc: 'Privacy tools (multisig, babyjubjub)',
+              repo: 'ZKNoxHQ/ZKNOX-HW-PRIVACY', ref: '5a77ad65a0f04144343adfb6906383b6645af9e3', frontUrl: 'https://railgun-hw.netlify.app/' },
             { id: 'ecmldsa', name: 'EC/ML-DSA', icon: '🔮', desc: 'Hybrid signatures', dir: 'zknox-orange/apps/ecmldsa', appFlags: 0, frontUrl: 'https://pq4337.netlify.app/' },
             { id: 'unchained', name: '7702 Unchained', icon: '🔓', desc: 'EIP-7702 delegation', dir: 'zknox-orange/apps/unchained', appFlags: 0, frontUrl: '/unchained.html' },
         ];
@@ -471,6 +483,11 @@
 
             statusEl.textContent = 'Fetching files...';
             statusEl.className = 'card-status';
+
+            if (app.repo) {
+                await loadCatalogAppFromRepo(app, statusEl);
+                return;
+            }
 
             try {
                 // Fetch manifest.json for api_level
@@ -604,19 +621,101 @@
             }
         }
 
+        // Layout `repo`: replay build/<target>/bin/app.apdu committed by the firmware
+        // repository. Target is read from the device (dashboard GET_VERSION), so the
+        // targetId selector is only a fallback if detection fails.
+        async function loadCatalogAppFromRepo(app, statusEl) {
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('progressBar').style.width = '5%';
+            document.getElementById('loadBtn').disabled = true;
+            try {
+                let targetId;
+                try {
+                    const dev = await getDeviceInfo(transport);
+                    targetId = dev.targetId;
+                    log(`Device: ${dev.targetName || '0x' + targetId.toString(16)} SE ${dev.seVersion}`, 'info');
+                    const sel = document.getElementById('targetId');
+                    if ([...sel.options].some(o => parseInt(o.value) === targetId)) sel.value = String(targetId);
+                } catch (e) {
+                    targetId = parseInt(document.getElementById('targetId').value);
+                    log(`Device detection failed (${e.message}), using selector 0x${targetId.toString(16)}`, 'warn');
+                }
+
+                const { apdu, info, urls } = await fetchCatalogApp(app, targetId);
+                log(`📦 ${info.appName}: ${info.loadBytes} bytes in ${info.loadChunks} chunks from ${urls['app.apdu']}`, 'success');
+                document.getElementById('progressBar').style.width = '20%';
+
+                statusEl.textContent = 'Sideloading...';
+                const deleteFirst = document.getElementById('deleteFirst').checked;
+                log('Establishing secure channel...', 'info');
+                await replayApduScript(transport, apdu, {
+                    targetId,
+                    delete: deleteFirst,
+                    debug: true,
+                    onProgress: ({ index, total }) => {
+                        document.getElementById('progressBar').style.width = `${20 + Math.floor(80 * index / total)}%`;
+                    }
+                });
+
+                document.getElementById('progressBar').style.width = '100%';
+                log(`✅ ${info.appName} installed successfully!`, 'success');
+                statusEl.textContent = '✓ Installed';
+                statusEl.className = 'card-status loaded';
+            } catch (e) {
+                statusEl.textContent = '✗ Failed';
+                statusEl.className = 'card-status';
+                statusEl.style.color = 'var(--danger)';
+                log(`❌ ${app.name} failed: ${e.message}`, 'error');
+                console.error('Catalog load error:', e);
+            } finally {
+                document.getElementById('loadBtn').disabled = false;
+                setTimeout(() => {
+                    document.getElementById('progressContainer').style.display = 'none';
+                    document.getElementById('progressBar').style.width = '0%';
+                }, 2000);
+            }
+        }
+
         renderCatalog();
 
         // ---- Shared connect helper ----
+        // Reads targetId / SE version from the dashboard, shows it and aligns #targetId.
+        async function detectDevice(kind) {
+            try {
+                const dev = await getDeviceInfo(transport);
+                const name = dev.targetName || ('0x' + dev.targetId.toString(16));
+                log(`Device: ${name} SE ${dev.seVersion} over ${kind.toUpperCase()}`, 'info');
+                document.getElementById('connectionStatus').textContent = `Connected: ${name} SE ${dev.seVersion} (${kind.toUpperCase()})`;
+                const sel = document.getElementById('targetId');
+                if ([...sel.options].some(o => parseInt(o.value) === dev.targetId)) {
+                    sel.value = String(dev.targetId);
+                } else {
+                    log(`targetId 0x${dev.targetId.toString(16)} not in the selector, add it`, 'warn');
+                }
+            } catch (e) {
+                log(`Device detection failed (${e.message}); is the device on the dashboard?`, 'warn');
+            }
+        }
+
         async function ensureConnected() {
             if (transport) return true; // already connected
             if (!modulesLoaded) { log('❌ Modules not loaded - cannot connect', 'error'); return false; }
-            if (!navigator.hid) { log('❌ WebHID not supported', 'error'); return false; }
+            const kind = document.querySelector('input[name="transportKind"]:checked')?.value || 'usb';
+            if (kind === 'ble' && !navigator.bluetooth) { log('❌ Web Bluetooth not supported (Chrome/Edge, https or localhost)', 'error'); return false; }
+            if (kind === 'usb' && !navigator.hid) { log('❌ WebHID not supported', 'error'); return false; }
             try {
-                log('Requesting device access... (select your Ledger in the popup)', 'info');
-                transport = await TransportWebHID.request(true);
-                log('✔ Device connected!', 'success');
+                if (kind === 'ble') {
+                    log('Requesting Bluetooth device... (device on the dashboard, Bluetooth on; confirm pairing on the device)', 'info');
+                    transport = await TransportWebBLE.request(true);
+                    log(`✔ Device connected over Bluetooth (${transport.model.name}, MTU ${transport.mtu})`, 'success');
+                } else {
+                    log('Requesting device access... (select your Ledger in the popup)', 'info');
+                    transport = await TransportWebHID.request(true);
+                    log('✔ Device connected!', 'success');
+                }
                 document.getElementById('connectionStatus').textContent = 'Connected';
                 document.getElementById('connectionStatus').className = 'status connected';
+                await detectDevice(kind);
                 document.getElementById('disconnectBtn').disabled = false;
                 document.getElementById('deleteBtn').disabled = false;
                 document.getElementById('listBtn').disabled = false;
