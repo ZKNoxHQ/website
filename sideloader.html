@@ -407,7 +407,7 @@
         // ---- ZKNOX Apps Catalog ----
         const catalogApps = [
             { id: 'privacy', name: 'Privacy', icon: '🕶️', desc: 'Privacy tools (multisig, babyjubjub)',
-              repo: 'ZKNoxHQ/ZKNOX-HW-PRIVACY', ref: '5a77ad65a0f04144343adfb6906383b6645af9e3', frontUrl: 'https://railgun-hw.netlify.app/' },
+              repo: 'ZKNoxHQ/ZKNOX-HW-PRIVACY', ref: 'e3fd460bdaaa8f3b87c1f111b9eb9b94de88eabb', profile: 'dev', frontUrl: 'https://railgun-hw.netlify.app/' },
             { id: 'ecmldsa', name: 'EC/ML-DSA', icon: '🔮', desc: 'Hybrid signatures', dir: 'zknox-orange/apps/ecmldsa', appFlags: 0, frontUrl: 'https://pq4337.netlify.app/' },
             { id: 'unchained', name: '7702 Unchained', icon: '🔓', desc: 'EIP-7702 delegation', dir: 'zknox-orange/apps/unchained', appFlags: 0, frontUrl: '/unchained.html' },
         ];
@@ -641,8 +641,12 @@
                     log(`Device detection failed (${e.message}), using selector 0x${targetId.toString(16)}`, 'warn');
                 }
 
-                const { apdu, info, urls } = await fetchCatalogApp(app, targetId);
-                log(`📦 ${info.appName}: ${info.loadBytes} bytes in ${info.loadChunks} chunks from ${urls['app.apdu']}`, 'success');
+                const { apdu, info, manifest, profile, urls } = await fetchCatalogApp(app, targetId);
+                log(`📦 ${info.appName} [${profile}]: ${info.loadBytes} bytes in ${info.loadChunks} chunks from ${urls['app.apdu']}`, 'success');
+                if (manifest) {
+                    log(`Build: mode=${manifest.mode} frost=${manifest.frost} backend=${manifest.backend} commit=${(manifest.commit || '').slice(0, 7)} elf_sha256=${(manifest.elf_sha256 || '').slice(0, 12)}…`, 'info');
+                    if (manifest.mode === 'debug') log('⚠ Development build: key-extraction instructions are compiled in. Test devices only.', 'warn');
+                }
                 document.getElementById('progressBar').style.width = '20%';
 
                 statusEl.textContent = 'Sideloading...';
