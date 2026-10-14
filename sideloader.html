@@ -91,7 +91,17 @@
         .status.connected { background: var(--success); color: white; }
         .status.disconnected { background: var(--danger); color: white; }
 
-        #deviceInfo { background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); margin-top: 1rem; display: none; }
+        /* Device status card (same as official-apps.html) */
+        .controls { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+        .status-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1rem; }
+        .status-card h3 { margin: 0 0 1rem 0; color: var(--text-primary); font-size: 1.1rem; font-weight: 600; }
+        .connection-status { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); }
+        .status-dot.connected { background: var(--success); }
+        .device-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .info-item { background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); }
+        .info-item label { display: block; color: var(--text-muted); font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.25rem; }
+        .info-item value { display: block; color: var(--text-primary); font-weight: 600; }
 
         /* Progress */
         .progress { width: 100%; height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin: 1rem 0; }
@@ -192,7 +202,7 @@
     
             <div class="section">
                 <h2>1. Device</h2>
-                <p>Put your Ledger device in <strong>Dashboard mode</strong> (main menu, no app open)</p>
+                <p>Put your Ledger device in <strong>Dashboard mode</strong> (main menu, no app open), then connect it over USB or Bluetooth (Nano X / Stax / Flex).</p>
                 
                 <div style="margin: 1rem 0;">
                     <label>Device Type</label>
@@ -205,15 +215,25 @@
                     </select>
                 </div>
 
-                <div id="deviceInfo" style="display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap;">
-                    <label style="margin: 0; display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
-                        <input type="radio" name="transportKind" value="usb" checked> USB
-                    </label>
-                    <label style="margin: 0; display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
-                        <input type="radio" name="transportKind" value="ble"> Bluetooth (Nano X / Stax / Flex)
-                    </label>
-                    <span id="connectionStatus" class="status disconnected">Disconnected</span>
-                    <button id="disconnectBtn" class="secondary" disabled style="margin: 0; padding: 0.4rem 1rem; font-size: 0.85rem;">Disconnect</button>
+                <div class="controls">
+                    <button id="connectBtn">🔌 Connect Ledger (USB)</button>
+                    <button id="connectBleBtn" class="secondary" title="Nano X, Stax, Flex: device on the dashboard, Bluetooth on">📶 Connect Bluetooth</button>
+                    <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
+                </div>
+
+                <div class="status-card">
+                    <h3>📱 Device Status</h3>
+                    <div class="connection-status">
+                        <span class="status-dot" id="statusDot"></span>
+                        <span id="connectionText">Not connected</span>
+                    </div>
+                    <div class="device-info">
+                        <div class="info-item"><label>Model</label><value id="deviceModel">-</value></div>
+                        <div class="info-item"><label>Firmware</label><value id="deviceFirmware">-</value></div>
+                        <div class="info-item"><label>MCU</label><value id="deviceMcu">-</value></div>
+                        <div class="info-item"><label>Target ID</label><value id="deviceTarget">-</value></div>
+                        <div class="info-item"><label>Link</label><value id="deviceLink">-</value></div>
+                    </div>
                 </div>
             </div>
 
@@ -384,12 +404,13 @@
             log('❌ WebHID not supported! Use Chrome/Edge 89+', 'error');
             log('WebHID requires HTTPS or localhost', 'warn');
             document.getElementById('loadBtn').disabled = true;
+            document.getElementById('connectBtn').disabled = true;
         } else {
             log('✔ WebHID supported', 'success');
         }
 
         let TransportWebHID, loadApp, deleteApp, listApps, getMemInfo, IntelHexParser;
-        let fetchCatalogApp, replayApduScript, getDeviceInfo, TransportWebBLE, FirmwareUi;
+        let fetchCatalogApp, replayApduScript, getDeviceInfo, TransportWebBLE, FirmwareUi, parseGetVersion;
         let modulesLoaded = false;
         
         try {
@@ -406,6 +427,7 @@
             getDeviceInfo = mod.getDeviceInfo;
             TransportWebBLE = mod.TransportWebBLE;
             FirmwareUi = mod.FirmwareUi;
+            parseGetVersion = mod.parseGetVersion;
             modulesLoaded = true;
             log('✔ Modules loaded successfully', 'success');
             log('Ready - Fill in app details then click "Connect & Load"', 'info');
@@ -696,67 +718,80 @@
 
         renderCatalog();
 
-        // ---- Shared connect helper ----
-        // Reads targetId / SE version from the dashboard, shows it and aligns #targetId.
-        async function detectDevice(kind) {
-            try {
-                const dev = await getDeviceInfo(transport);
-                const name = dev.targetName || ('0x' + dev.targetId.toString(16));
-                log(`Device: ${name} SE ${dev.seVersion} over ${kind.toUpperCase()}`, 'info');
-                document.getElementById('connectionStatus').textContent = `Connected: ${name} SE ${dev.seVersion} (${kind.toUpperCase()})`;
-                const sel = document.getElementById('targetId');
-                if ([...sel.options].some(o => parseInt(o.value) === dev.targetId)) {
-                    sel.value = String(dev.targetId);
-                } else {
-                    log(`targetId 0x${dev.targetId.toString(16)} not in the selector, add it`, 'warn');
-                }
-            } catch (e) {
-                log(`Device detection failed (${e.message}); is the device on the dashboard?`, 'warn');
-            }
+        // ---- Device connection (same UX as official-apps.html: explicit USB / Bluetooth buttons) ----
+        let transportKind = 'usb';
+
+        function showDevice(info, kind) {
+            document.getElementById('statusDot').classList.add('connected');
+            document.getElementById('connectionText').textContent = 'Connected';
+            document.getElementById('deviceModel').textContent = info.model;
+            document.getElementById('deviceFirmware').textContent = info.version;
+            document.getElementById('deviceMcu').textContent = info.mcuVersion || '-';
+            document.getElementById('deviceTarget').textContent = '0x' + info.targetId.toString(16);
+            document.getElementById('deviceLink').textContent = kind === 'ble' ? 'Bluetooth' : 'USB';
+            const sel = document.getElementById('targetId');
+            if ([...sel.options].some(o => parseInt(o.value) === info.targetId)) sel.value = String(info.targetId);
+            for (const id of ['disconnectBtn', 'deleteBtn', 'listBtn', 'pushCABtn', 'testCABtn']) document.getElementById(id).disabled = false;
         }
 
-        async function ensureConnected() {
-            if (transport) return true; // already connected
+        function clearDevice() {
+            document.getElementById('statusDot').classList.remove('connected');
+            document.getElementById('connectionText').textContent = 'Not connected';
+            for (const id of ['deviceModel', 'deviceFirmware', 'deviceMcu', 'deviceTarget', 'deviceLink']) document.getElementById(id).textContent = '-';
+            for (const id of ['disconnectBtn', 'deleteBtn', 'listBtn', 'pushCABtn', 'testCABtn']) document.getElementById(id).disabled = true;
+        }
+
+        async function connectDevice(kind = 'usb') {
             if (!modulesLoaded) { log('❌ Modules not loaded - cannot connect', 'error'); return false; }
-            const kind = document.querySelector('input[name="transportKind"]:checked')?.value || 'usb';
-            if (kind === 'ble' && !navigator.bluetooth) { log('❌ Web Bluetooth not supported (Chrome/Edge, https or localhost)', 'error'); return false; }
-            if (kind === 'usb' && !navigator.hid) { log('❌ WebHID not supported', 'error'); return false; }
+            transportKind = kind;
+            const btn = document.getElementById(kind === 'ble' ? 'connectBleBtn' : 'connectBtn');
+            const idleLabel = kind === 'ble' ? '📶 Connect Bluetooth' : '🔌 Connect Ledger (USB)';
+            btn.disabled = true;
+            btn.textContent = 'Connecting...';
             try {
+                if (transport) { try { await transport.close(); } catch (e) {} transport = null; clearDevice(); }
                 if (kind === 'ble') {
+                    if (!TransportWebBLE.isSupported()) throw new Error('Web Bluetooth not supported in this browser (Chrome/Edge, https or localhost)');
                     log('Requesting Bluetooth device... (device on the dashboard, Bluetooth on; confirm pairing on the device)', 'info');
                     transport = await TransportWebBLE.request(true);
-                    log(`✔ Device connected over Bluetooth (${transport.model.name}, MTU ${transport.mtu})`, 'success');
+                    log(`Bluetooth link: ${transport.model.name}, MTU ${transport.mtu}`, 'info');
                 } else {
+                    if (!navigator.hid) throw new Error('WebHID not supported (Chrome/Edge 89+, https or localhost)');
                     log('Requesting device access... (select your Ledger in the popup)', 'info');
                     transport = await TransportWebHID.request(true);
-                    log('✔ Device connected!', 'success');
                 }
-                document.getElementById('connectionStatus').textContent = 'Connected';
-                document.getElementById('connectionStatus').className = 'status connected';
-                await detectDevice(kind);
-                document.getElementById('disconnectBtn').disabled = false;
-                document.getElementById('deleteBtn').disabled = false;
-                document.getElementById('listBtn').disabled = false;
-                document.getElementById('pushCABtn').disabled = false;
-                document.getElementById('testCABtn').disabled = false;
+                const info = parseGetVersion(await transport.exchange(new Uint8Array([0xe0, 0x01, 0x00, 0x00, 0x00])));
+                if (info.isBootloader) {
+                    log(`Device is in bootloader mode (${info.rawVersion}): use Bootloader Recovery in section 5`, 'warn');
+                }
+                showDevice(info, kind);
+                log(`✔ Connected to ${info.model} (${info.version}) over ${kind === 'ble' ? 'Bluetooth' : 'USB'}`, 'success');
                 return true;
             } catch (e) {
                 console.error('Connection error:', e);
                 log(`❌ Connection failed: ${e.message}`, 'error');
-                if (e.message.includes('No Ledger')) { log('Did you select a device in the popup?', 'warn'); }
+                if (e.message.includes('No Ledger')) log('Did you select a device in the popup?', 'warn');
+                if (/6e00|6d00|refused/i.test(e.message)) log('Quit the running app: the device must be on the dashboard', 'warn');
                 return false;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = transport ? (kind === 'ble' ? '📶 Reconnect Bluetooth' : '🔌 Reconnect USB') : idleLabel;
             }
         }
 
+        // Used by Load / catalog / CA: connects over USB if nothing is connected yet.
+        async function ensureConnected() {
+            if (transport && transport.opened) return true;
+            return connectDevice('usb');
+        }
+
+        document.getElementById('connectBtn').onclick = () => connectDevice('usb');
+        document.getElementById('connectBleBtn').onclick = () => connectDevice('ble');
         document.getElementById('disconnectBtn').onclick = async () => {
             if (transport) { try { await transport.close(); } catch (e) { console.error('Close error:', e); } transport = null; }
-            document.getElementById('connectionStatus').textContent = 'Disconnected';
-            document.getElementById('connectionStatus').className = 'status disconnected';
-            document.getElementById('disconnectBtn').disabled = true;
-            document.getElementById('deleteBtn').disabled = true;
-            document.getElementById('listBtn').disabled = true;
-            document.getElementById('pushCABtn').disabled = true;
-            document.getElementById('testCABtn').disabled = true;
+            clearDevice();
+            document.getElementById('connectBtn').textContent = '🔌 Connect Ledger (USB)';
+            document.getElementById('connectBleBtn').textContent = '📶 Connect Bluetooth';
             log('Disconnected', 'info');
         };
 
@@ -773,12 +808,7 @@
                     document.getElementById('firmwareProgressText').textContent = text || '';
                 },
                 showProgress: (show) => { document.getElementById('firmwareProgressContainer').style.display = show ? 'block' : 'none'; },
-                onDeviceInfo: (info) => {
-                    const kind = transport && transport.device && transport.device.gatt ? 'BLE' : 'USB';
-                    document.getElementById('connectionStatus').textContent = `Connected: ${info.model} SE ${info.version} MCU ${info.mcuVersion} (${kind})`;
-                    document.getElementById('connectionStatus').className = 'status connected';
-                    document.getElementById('disconnectBtn').disabled = false;
-                },
+                onDeviceInfo: (info) => showDevice(info, transport && transport.device && transport.device.gatt ? 'ble' : 'usb'),
                 buttons: { firmware: 'firmwareBtn', recovery: 'recoveryBtn', lockWhileUpdating: ['loadBtn', 'deleteBtn', 'listBtn', 'pushCABtn', 'testCABtn', 'disconnectBtn'] },
             }).mount();
             // Check needs a connected device first (USB or Bluetooth, per the radio above)
