@@ -40,6 +40,17 @@
             border-bottom: 2px solid var(--accent-primary);
         }
         .section p { color: var(--text-secondary); margin-bottom: 1rem; }
+        .section details > summary { list-style: none; cursor: pointer; }
+        .section details > summary::-webkit-details-marker { display: none; }
+        .section details > summary h2 { margin-bottom: 0; }
+        .section details > summary h2::before { content: '▸ '; font-size: 0.9em; }
+        .section details[open] > summary h2::before { content: '▾ '; }
+        .section details[open] > summary h2 { margin-bottom: 1rem; }
+        .catalog-card.disabled { opacity: 0.45; filter: grayscale(1); cursor: not-allowed; pointer-events: none; }
+        .fw-ok { color: var(--success); }
+        .fw-warn { color: #f59e0b; }
+        main button.warning { background: #f59e0b; }
+        main button.warning:hover { background: #d97706; }
 
         /* Form Elements */
         label { display: block; margin: 1rem 0 0.25rem; font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
@@ -219,6 +230,7 @@
                     <button id="connectBtn">🔌 Connect Ledger (USB)</button>
                     <button id="connectBleBtn" class="secondary" title="Nano X, Stax, Flex: device on the dashboard, Bluetooth on">📶 Connect Bluetooth</button>
                     <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
+                    <button id="fwUpdateTopBtn" class="warning" style="display: none;">⬆️ Update Firmware</button>
                 </div>
 
                 <div class="status-card">
@@ -233,6 +245,7 @@
                         <div class="info-item"><label>MCU</label><value id="deviceMcu">-</value></div>
                         <div class="info-item"><label>Target ID</label><value id="deviceTarget">-</value></div>
                         <div class="info-item"><label>Link</label><value id="deviceLink">-</value></div>
+                        <div class="info-item"><label>Firmware status</label><value id="deviceFwStatus">-</value></div>
                     </div>
                 </div>
             </div>
@@ -245,7 +258,9 @@
             </div>
 
             <div class="section">
-                <h2>2. Application Details</h2>
+                <details id="customAppDetails">
+                <summary><h2>2. Custom app sideloading</h2></summary>
+                <p>Load your own build: app name, HEX file and load parameters. Not needed for the catalog above.</p>
                 
                 <div class="grid">
                     <div>
@@ -321,6 +336,7 @@
                     <input type="checkbox" id="deleteFirst" checked>
                     <label for="deleteFirst" style="display: inline; margin: 0;">Delete existing app first</label>
                 </div>
+                </details>
             </div>
 
             <div class="section">
@@ -443,9 +459,11 @@
         // ---- ZKNOX Apps Catalog ----
         const catalogApps = [
             { id: 'privacy', name: 'Privacy', icon: '🕶️', desc: 'Privacy tools (multisig, babyjubjub)',
-              repo: 'ZKNoxHQ/ZKNOX-HW-PRIVACY', ref: 'e3fd460bdaaa8f3b87c1f111b9eb9b94de88eabb', profile: 'dev', frontUrl: 'https://railgun-hw.netlify.app/' },
-            { id: 'ecmldsa', name: 'EC/ML-DSA', icon: '🔮', desc: 'Hybrid signatures', dir: 'zknox-orange/apps/ecmldsa', appFlags: 0, frontUrl: 'https://pq4337.netlify.app/' },
-            { id: 'unchained', name: '7702 Unchained', icon: '🔓', desc: 'EIP-7702 delegation', dir: 'zknox-orange/apps/unchained', appFlags: 0, frontUrl: '/unchained.html' },
+              repo: 'ZKNoxHQ/ZKNOX-HW-PRIVACY', ref: 'e3fd460bdaaa8f3b87c1f111b9eb9b94de88eabb', profile: 'dev', frontUrl: 'https://railgun-hw.netlify.app/', frontLabel: 'rsgun toy wallet' },
+            { id: 'ecmldsa', name: 'EC/ML-DSA', icon: '🔮', desc: 'Hybrid signatures', dir: 'zknox-orange/apps/ecmldsa', appFlags: 0, frontUrl: 'https://pq4337.netlify.app/',
+              disabled: 'Binaries being updated' },
+            { id: 'unchained', name: '7702 Unchained', icon: '🔓', desc: 'EIP-7702 delegation', dir: 'zknox-orange/apps/unchained', appFlags: 0, frontUrl: '/unchained.html',
+              disabled: 'Binaries being updated' },
         ];
 
         function renderCatalog() {
@@ -462,16 +480,21 @@
                     <div class="card-icon">${app.icon}</div>
                     <div class="card-name">${app.name}</div>
                     <div class="card-desc">${app.desc}</div>
-                    <div class="card-status" id="status-${app.id}">Click to install</div>
+                    <div class="card-status" id="status-${app.id}">${app.disabled ? app.disabled : 'Click to install'}</div>
                 `;
-                card.onclick = () => loadCatalogApp(app);
+                if (app.disabled) {
+                    card.classList.add('disabled');
+                    card.title = app.disabled;
+                } else {
+                    card.onclick = () => loadCatalogApp(app);
+                }
                 wrapper.appendChild(card);
 
                 if (app.frontUrl) {
                     const link = document.createElement('a');
                     link.href = app.frontUrl;
                     link.target = '_blank';
-                    link.textContent = 'front';
+                    link.textContent = app.frontLabel || 'front';
                     link.style.cssText = 'padding:0.25rem 0.75rem;font-size:0.75rem;font-family:"IBM Plex Mono",monospace;background:var(--accent-primary);color:#fff;border-radius:4px;text-decoration:none;font-weight:600;';
                     wrapper.appendChild(link);
                 }
@@ -737,7 +760,9 @@
         function clearDevice() {
             document.getElementById('statusDot').classList.remove('connected');
             document.getElementById('connectionText').textContent = 'Not connected';
-            for (const id of ['deviceModel', 'deviceFirmware', 'deviceMcu', 'deviceTarget', 'deviceLink']) document.getElementById(id).textContent = '-';
+            for (const id of ['deviceModel', 'deviceFirmware', 'deviceMcu', 'deviceTarget', 'deviceLink', 'deviceFwStatus']) document.getElementById(id).textContent = '-';
+            document.getElementById('deviceFwStatus').className = '';
+            document.getElementById('fwUpdateTopBtn').style.display = 'none';
             for (const id of ['disconnectBtn', 'deleteBtn', 'listBtn', 'pushCABtn', 'testCABtn']) document.getElementById(id).disabled = true;
         }
 
@@ -766,6 +791,7 @@
                 }
                 showDevice(info, kind);
                 log(`✔ Connected to ${info.model} (${info.version}) over ${kind === 'ble' ? 'Bluetooth' : 'USB'}`, 'success');
+                if (firmwareUi && !info.isBootloader) firmwareUi.probe();   // async, fills "Firmware status"
                 return true;
             } catch (e) {
                 console.error('Connection error:', e);
@@ -809,12 +835,31 @@
                 },
                 showProgress: (show) => { document.getElementById('firmwareProgressContainer').style.display = show ? 'block' : 'none'; },
                 onDeviceInfo: (info) => showDevice(info, transport && transport.device && transport.device.gatt ? 'ble' : 'usb'),
+                onFirmwareStatus: ({ state, ctx }) => {
+                    const el = document.getElementById('deviceFwStatus');
+                    const top = document.getElementById('fwUpdateTopBtn');
+                    const texts = {
+                        'checking': ['Checking...', ''],
+                        'up-to-date': ['Up to date', 'fw-ok'],
+                        'update-available': [`Update available: ${ctx ? ctx.targetVersion : '?'}` + (ctx && ctx.shouldFlashMCU ? ' (MCU)' : ''), 'fw-warn'],
+                        'bootloader': ['Bootloader mode: use Recovery', 'fw-warn'],
+                        'unknown': ['Unknown (check failed)', ''],
+                    };
+                    const [text, cls] = texts[state] || ['-', ''];
+                    el.textContent = text;
+                    el.className = cls;
+                    top.style.display = state === 'update-available' ? '' : 'none';
+                },
                 buttons: { firmware: 'firmwareBtn', recovery: 'recoveryBtn', lockWhileUpdating: ['loadBtn', 'deleteBtn', 'listBtn', 'pushCABtn', 'testCABtn', 'disconnectBtn'] },
             }).mount();
             // Check needs a connected device first (USB or Bluetooth, per the radio above)
             const check = firmwareUi.check.bind(firmwareUi);
             firmwareUi.check = async () => { if (await ensureConnected()) await check(); else firmwareUi.setFirmwareButton('check'); };
             firmwareUi.setFirmwareButton('check');
+            document.getElementById('fwUpdateTopBtn').onclick = () => {
+                document.getElementById('firmwareSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                firmwareUi.update();
+            };
         }
         mountFirmwareUi();
 
