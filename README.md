@@ -4,32 +4,34 @@ Official website for ZKNOX — Hardware Security & Cryptography.
 
 ## Quick Start
 
-Clone the main website repository, then clone the tool repositories:
+The tool engines (ZKNOX Blue, ZKNOX Orange) are git submodules, pinned to an exact commit:
 
 ```bash
-# Clone the main website
-git clone https://github.com/ZKNoxHQ/website.git
+git clone --recurse-submodules https://github.com/ZKNoxHQ/website.git
 cd website
-
-# Clone ZKNOX Blue (Official App Installer)
-git clone https://github.com/ZKNoxHQ/ZKNOXblue.git zknox-blue
-
-# Clone ZKNOX Orange (Sideloader)
-git clone https://github.com/ZKNoxHQ/ZKNOXorange.git zknox-orange
-
-
-# Clone ZKNOX 7702 Unchained (7702 Delegation)
-git clone https://github.com/ZKNoxHQ/7702_Unchained
-cd 7702_Unchained; rm -rf ledger/
+npx serve .
 ```
 
-After cloning, the complete site structure will be ready to serve.
+Already cloned without submodules: `git submodule update --init`.
+
+To pick up a new engine release:
+
+```bash
+git submodule update --remote zknox-blue    # or zknox-orange
+git commit -am 'bump zknox-blue'
+```
 
 Every tool's **page** lives here at the site root (`official-apps.html`,
 `sideloader.html`, `unchained.html`) so it shares `styles.css` and `nav.js`; the
-cloned repos supply only what each page loads — JS bundles, app binaries, images.
-Serve over HTTP (`npx serve .`), not `file://`, or the root-relative `/nav.js`
-and the ES-module imports will fail.
+submodules supply only what each page loads — JS bundles, app binaries, images.
+All behaviour lives in the engine bundles (for ZKNOX Blue: `FirmwareUpdater`,
+`FirmwareUi`); a page only wires buttons to them, so the script of
+`official-apps.html` is identical to the one in the ZKNOXblue repo apart from the
+bundle path. Serve over HTTP (`npx serve .`), not `file://`, or the root-relative
+`/nav.js` and the ES-module imports will fail.
+
+The privacy app offered by the sideloader is fetched at runtime from
+`ZKNoxHQ/ZKNOX-HW-PRIVACY` at a commit pinned in `sideloader.html`.
 
 ## Directory Structure
 
@@ -44,12 +46,12 @@ website/
 ├── unchained.html          # 7702 Unchained - EIP-7702 delegation UI
 ├── README.md               # This file
 │
-├── zknox-blue/             # ZKNOX Blue - engine
+├── zknox-blue/             # ZKNOX Blue - engine (submodule ZKNoxHQ/ZKNOXblue)
 │   ├── dist/               # Bundled JavaScript
 │   ├── src/                # Source modules
 │   └── README.md
 │
-├── zknox-orange/           # ZKNOX Orange - engine & app catalog
+├── zknox-orange/           # ZKNOX Orange - engine & app catalog (submodule ZKNoxHQ/ZKNOXorange)
 │   ├── apps/               # Prebuilt Ledger apps (.hex, .map, Makefile)
 │   ├── dist/               # Bundled JavaScript
 │   ├── src/                # Source modules
@@ -96,14 +98,15 @@ website/
 
 ### ZKNOX Blue
 Official Ledger application installer using ZKNOX's HSM infrastructure. The page is
-`official-apps.html` at the site root; the `zknox-blue/` clone supplies the JS bundle.
+`official-apps.html` at the site root; the `zknox-blue/` submodule supplies the JS bundle.
 - Install official Ledger apps
-- Firmware verification
+- Firmware check and update through Ledger's HSM, without Ledger Live
+- Bootloader recovery for a device stuck on "Bootloader"
 - WebHID-based (Chrome/Edge)
 
 ### ZKNOX Orange
 Development sideloader for custom Ledger applications. The page is `sideloader.html`
-at the site root; the `zknox-orange/` clone supplies the JS bundle and the app catalog.
+at the site root; the `zknox-orange/` submodule supplies the JS bundle and the app catalog.
 - Push Custom CA
 - Load custom .hex applications
 - SCP v3 protocol implementation
