@@ -1,0 +1,6 @@
+[submodule "zknox-blue"]
+	path = zknox-blue
+	url = https://github.com/ZKNoxHQ/ZKNOXblue.git
+[submodule "zknox-orange"]
+	path = zknox-orange
+	url = https://github.com/ZKNoxHQ/ZKNOXorange.git
