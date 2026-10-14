@@ -24,7 +24,7 @@ git commit -am 'bump zknox-blue'
 Every tool's **page** lives here at the site root (`official-apps.html`,
 `sideloader.html`, `unchained.html`) so it shares `styles.css` and `nav.js`; the
 submodules supply only what each page loads — JS bundles, app binaries, images.
-All behaviour lives in the engine bundles (for ZKNOX Blue: `FirmwareUpdater`,
+All behaviour lives in the engine bundles (for ZKNOX Orange: `FirmwareUpdater`,
 `FirmwareUi`); a page only wires buttons to them, so the script of
 `official-apps.html` is identical to the one in the ZKNOXblue repo apart from the
 bundle path. Serve over HTTP (`npx serve .`), not `file://`, or the root-relative
@@ -100,9 +100,8 @@ website/
 Official Ledger application installer using ZKNOX's HSM infrastructure. The page is
 `official-apps.html` at the site root; the `zknox-blue/` submodule supplies the JS bundle.
 - Install official Ledger apps
-- Firmware check and update through Ledger's HSM, without Ledger Live
-- Bootloader recovery for a device stuck on "Bootloader"
-- WebHID-based (Chrome/Edge)
+- USB or Bluetooth (Nano X / Stax / Flex)
+- WebHID / Web Bluetooth (Chrome/Edge)
 
 ### ZKNOX Orange
 Development sideloader for custom Ledger applications. The page is `sideloader.html`
@@ -110,6 +109,7 @@ at the site root; the `zknox-orange/` submodule supplies the JS bundle and the a
 - Push Custom CA
 - Load custom .hex applications
 - SCP v3 protocol implementation
+- Firmware check and update through Ledger's HSM, without Ledger Live; bootloader recovery
 - For developers only
 
 ## Pages Overview

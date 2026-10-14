@@ -335,6 +335,19 @@
                 </div>
             </div>
 
+            <div class="section" id="firmwareSection">
+                <h2>5. Firmware</h2>
+                <p>Check and install Ledger OS updates through Ledger's HSM, without Ledger Live. Works over USB and Bluetooth; the bootloader step of an MCU update stays on the same link. Keep the device connected for the whole process.</p>
+
+                <button id="firmwareBtn" class="secondary">📦 Check Firmware</button>
+                <button id="recoveryBtn" class="secondary" title="Device stuck on 'Bootloader': plug it over USB holding the left button, then click">🛠️ Bootloader Recovery</button>
+
+                <div class="progress" id="firmwareProgressContainer" style="display: none;">
+                    <div class="progress-bar" id="firmwareProgressBar" style="width: 0%"></div>
+                </div>
+                <div class="help" id="firmwareProgressText" style="margin-top: 0.5rem;"></div>
+            </div>
+
             <div class="section">
                 <h2>Log</h2>
                 <button id="clearLogBtn" class="secondary" style="float: right; padding: 0.5rem 1rem; font-size: 0.85rem;">Clear</button>
@@ -376,7 +389,7 @@
         }
 
         let TransportWebHID, loadApp, deleteApp, listApps, getMemInfo, IntelHexParser;
-        let fetchCatalogApp, replayApduScript, getDeviceInfo, TransportWebBLE;
+        let fetchCatalogApp, replayApduScript, getDeviceInfo, TransportWebBLE, FirmwareUi;
         let modulesLoaded = false;
         
         try {
@@ -392,6 +405,7 @@
             replayApduScript = mod.replayApduScript;
             getDeviceInfo = mod.getDeviceInfo;
             TransportWebBLE = mod.TransportWebBLE;
+            FirmwareUi = mod.FirmwareUi;
             modulesLoaded = true;
             log('✔ Modules loaded successfully', 'success');
             log('Ready - Fill in app details then click "Connect & Load"', 'info');
@@ -745,6 +759,34 @@
             document.getElementById('testCABtn').disabled = true;
             log('Disconnected', 'info');
         };
+
+        // ---- Firmware (engine: FirmwareUpdater + FirmwareUi in the ZKNOX Orange bundle) ----
+        let firmwareUi = null;
+        function mountFirmwareUi() {
+            if (firmwareUi || !modulesLoaded) return;
+            firmwareUi = new FirmwareUi({
+                getTransport: () => transport,
+                setTransport: (t) => { transport = t; },
+                log: (m, type) => log(m, type === 'warning' ? 'warn' : type),
+                progress: (pct, text) => {
+                    document.getElementById('firmwareProgressBar').style.width = `${pct}%`;
+                    document.getElementById('firmwareProgressText').textContent = text || '';
+                },
+                showProgress: (show) => { document.getElementById('firmwareProgressContainer').style.display = show ? 'block' : 'none'; },
+                onDeviceInfo: (info) => {
+                    const kind = transport && transport.device && transport.device.gatt ? 'BLE' : 'USB';
+                    document.getElementById('connectionStatus').textContent = `Connected: ${info.model} SE ${info.version} MCU ${info.mcuVersion} (${kind})`;
+                    document.getElementById('connectionStatus').className = 'status connected';
+                    document.getElementById('disconnectBtn').disabled = false;
+                },
+                buttons: { firmware: 'firmwareBtn', recovery: 'recoveryBtn', lockWhileUpdating: ['loadBtn', 'deleteBtn', 'listBtn', 'pushCABtn', 'testCABtn', 'disconnectBtn'] },
+            }).mount();
+            // Check needs a connected device first (USB or Bluetooth, per the radio above)
+            const check = firmwareUi.check.bind(firmwareUi);
+            firmwareUi.check = async () => { if (await ensureConnected()) await check(); else firmwareUi.setFirmwareButton('check'); };
+            firmwareUi.setFirmwareButton('check');
+        }
+        mountFirmwareUi();
 
         document.getElementById('loadBtn').onclick = async () => {
             if (!await ensureConnected()) return;
