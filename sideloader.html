@@ -460,10 +460,10 @@
         const catalogApps = [
             { id: 'privacy', name: 'Privacy', icon: '🕶️', desc: 'Privacy tools (multisig, babyjubjub)',
               repo: 'ZKNoxHQ/ZKNOX-HW-PRIVACY', ref: 'e3fd460bdaaa8f3b87c1f111b9eb9b94de88eabb', profile: 'dev', frontUrl: 'https://railgun-hw.netlify.app/', frontLabel: 'rsgun toy wallet' },
-            { id: 'ecmldsa', name: 'EC/ML-DSA', icon: '🔮', desc: 'Hybrid signatures', dir: 'zknox-orange/apps/ecmldsa', appFlags: 0, frontUrl: 'https://pq4337.netlify.app/',
-              disabled: 'Binaries being updated' },
-            { id: 'unchained', name: '7702 Unchained', icon: '🔓', desc: 'EIP-7702 delegation', dir: 'zknox-orange/apps/unchained', appFlags: 0, frontUrl: '/unchained.html',
-              disabled: 'Binaries being updated' },
+            { id: 'ecmldsa', name: 'EC/ML-DSA', icon: '🔮', desc: 'Hybrid signatures',
+              repo: 'ZKNoxHQ/ecml-signer', ref: 'a6e4ab665193b21933e289ac164fe9269d9fb22f', binDir: 'build/{target}/bin', frontUrl: 'https://pq4337.netlify.app/' },
+            { id: 'unchained', name: '7702 Unchained', icon: '🔓', desc: 'EIP-7702 delegation',
+              repo: 'ZKNoxHQ/7702_Unchained', ref: 'a01518ffce0d24842985ce10b628a6bf1cbd10c9', binDir: 'ledger/build/{target}/bin', frontUrl: '/unchained.html' },
         ];
 
         function renderCatalog() {

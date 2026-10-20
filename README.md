@@ -30,8 +30,9 @@ All behaviour lives in the engine bundles (for ZKNOX Orange: `FirmwareUpdater`,
 bundle path. Serve over HTTP (`npx serve .`), not `file://`, or the root-relative
 `/nav.js` and the ES-module imports will fail.
 
-The privacy app offered by the sideloader is fetched at runtime from
-`ZKNoxHQ/ZKNOX-HW-PRIVACY` at a commit pinned in `sideloader.html`.
+The catalog apps offered by the sideloader (privacy, EC/ML-DSA, 7702 Unchained)
+are fetched at runtime from `ZKNoxHQ/ZKNOX-HW-PRIVACY`, `ZKNoxHQ/ecml-signer`
+and `ZKNoxHQ/7702_Unchained`, each at a commit pinned in `sideloader.html`.
 
 ## Directory Structure
 
